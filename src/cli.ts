@@ -8,7 +8,8 @@ import path from "path";
 import os from "os";
 import inquirer from "inquirer";
 import { ConstructorParams } from "@browserbasehq/stagehand";
-const REPO_URL = "https://github.com/browserbase/playbook.git";
+import { generateConfig } from "./generateStagehandConfig";
+const REPO_URL = "https://github.com/browserbase/playbook";
 const EXAMPLE_PATH = "create-browser-app";
 const TEMP_DIR = path.join(
   os.tmpdir(),
@@ -33,7 +34,7 @@ async function cloneExample(stagehandConfig: StagehandConfig) {
     // Clone the repository
     console.log(
       chalk.cyan(`Cloning template from the Browserbase Playbook:`) +
-        ` ${REPO_URL}`
+        ` ${REPO_URL}/tree/main/${EXAMPLE_PATH}`
     );
     execSync(`git clone --depth 1 ${REPO_URL} ${TEMP_DIR}`, {
       stdio: "ignore",
@@ -110,6 +111,12 @@ async function cloneExample(stagehandConfig: StagehandConfig) {
     if (envContent) {
       fs.writeFileSync(path.join(projectDir, ".env"), envContent);
     }
+
+    // Write stagehand config
+    fs.writeFileSync(
+      path.join(projectDir, "stagehand.config.ts"),
+      generateConfig(stagehandConfig)
+    );
 
     console.log(
       boxen(
