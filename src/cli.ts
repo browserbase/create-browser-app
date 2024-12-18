@@ -121,9 +121,10 @@ async function cloneExample(stagehandConfig: StagehandConfig) {
     console.log(
       boxen(
         chalk.yellow("\nLights, camera, act()!") +
-          "\n\nNext steps:\n" +
+          "\n\nEdit and run your Stagehand app:\n" +
           chalk.cyan(`  cd ${stagehandConfig?.projectName}\n`) +
-          chalk.cyan("  npm install\n") +
+          chalk.cyan(`  code . && code ./index.ts\n`) +
+          chalk.cyan(`  npm install\n`) +
           chalk.cyan("  npm start"),
         {
           padding: 1,
