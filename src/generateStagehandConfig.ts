@@ -2,6 +2,9 @@ import type { ConstructorParams, LogLine } from "@browserbasehq/stagehand";
 
 export function generateConfig(config: ConstructorParams): string {
   return `import type { ConstructorParams, LogLine } from "@browserbasehq/stagehand";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const StagehandConfig: ConstructorParams = {
   env: ${JSON.stringify(config.env)},

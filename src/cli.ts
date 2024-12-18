@@ -75,6 +75,15 @@ async function cloneExample(stagehandConfig: StagehandConfig) {
     let envContent = "";
 
     // Add environment variables if they exist
+    console.log(
+      "BROWSERBASE_PROJECT_ID=",
+      stagehandConfig?.browserbaseProjectId ??
+        process.env.BROWSERBASE_PROJECT_ID
+    );
+    console.log(
+      "BROWSERBASE_API_KEY=",
+      stagehandConfig?.browserbaseApiKey ?? process.env.BROWSERBASE_API_KEY
+    );
     if (
       stagehandConfig?.browserbaseProjectId ||
       process.env.BROWSERBASE_PROJECT_ID
@@ -207,7 +216,7 @@ async function getStagehandConfig(projectName?: string) {
     },
     {
       type: "input",
-      name: "projectId",
+      name: "browserbaseProjectId",
       message:
         "Go to Browserbase Settings: https://www.browserbase.com/settings\nEnter your project ID",
       when: (answers) =>
@@ -215,7 +224,7 @@ async function getStagehandConfig(projectName?: string) {
     },
     {
       type: "input",
-      name: "apiKey",
+      name: "browserbaseApiKey",
       message: "Enter your Browserbase API key",
       when: (answers) =>
         answers.env === "BROWSERBASE" && !process.env.BROWSERBASE_API_KEY,
