@@ -1,6 +1,6 @@
 {
   "name": "create-browser-app",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "",
   "bin": {
     "create-browser-app": "./dist/cli.js"
@@ -15,7 +15,7 @@
     "dev": "tsup src/cli.ts --format esm --dts --watch",
     "lint": "eslint src/**/*.ts",
     "prepublishOnly": "npm run build",
-    "start": "rm -rf ignore && rm -rf dist && pnpm run build && node dist/cli.js",
+    "start": "rm -rf ignore && rm -rf dist && pnpm run build && node dist/cli.js ignore",
     "changeset": "changeset",
     "version": "changeset version",
     "release": "npm run build && changeset publish"

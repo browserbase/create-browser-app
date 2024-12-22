@@ -10,7 +10,7 @@ import inquirer from "inquirer";
 import { ConstructorParams } from "@browserbasehq/stagehand";
 import { generateConfig } from "./generateStagehandConfig";
 const REPO_URL = "https://github.com/browserbase/playbook";
-const EXAMPLE_PATH = "create-browser-app";
+const EXAMPLE_PATH = "stagehand-quickstart";
 const TEMP_DIR = path.join(
   os.tmpdir(),
   "browserbase-clone-" + Math.random().toString(36).substr(2, 9)
@@ -132,9 +132,12 @@ async function cloneExample(stagehandConfig: StagehandConfig) {
         chalk.yellow("\nLights, camera, act()!") +
           "\n\nEdit and run your Stagehand app:\n" +
           chalk.cyan(`  cd ${stagehandConfig?.projectName}\n`) +
-          chalk.cyan(`  code . && code ./index.ts\n`) +
           chalk.cyan(`  npm install\n`) +
-          chalk.cyan("  npm start"),
+          chalk.cyan("  npm start") +
+          "\n\n" +
+          `View and edit the code in ${chalk.cyan(
+            `${stagehandConfig?.projectName}/index.ts`
+          )}.\nRun the app with ${chalk.cyan("npm start")}`,
         {
           padding: 1,
           margin: 1,
