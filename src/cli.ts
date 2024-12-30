@@ -34,7 +34,7 @@ async function cloneExample(stagehandConfig: StagehandConfig) {
     // Clone the repository
     console.log(
       chalk.cyan(`Cloning template from the Browserbase Playbook:`) +
-        ` ${REPO_URL}/tree/main/${EXAMPLE_PATH}`
+      ` ${REPO_URL}/tree/main/${EXAMPLE_PATH}`
     );
     execSync(`git clone --depth 1 ${REPO_URL} ${TEMP_DIR}`, {
       stdio: "ignore",
@@ -75,41 +75,28 @@ async function cloneExample(stagehandConfig: StagehandConfig) {
     let envContent = "";
 
     // Add environment variables if they exist
-    console.log(
-      "BROWSERBASE_PROJECT_ID=",
-      stagehandConfig?.browserbaseProjectId ??
-        process.env.BROWSERBASE_PROJECT_ID
-    );
-    console.log(
-      "BROWSERBASE_API_KEY=",
-      stagehandConfig?.browserbaseApiKey ?? process.env.BROWSERBASE_API_KEY
-    );
     if (
       stagehandConfig?.browserbaseProjectId ||
       process.env.BROWSERBASE_PROJECT_ID
     ) {
-      envContent += `BROWSERBASE_PROJECT_ID=${
-        stagehandConfig?.browserbaseProjectId ??
+      envContent += `BROWSERBASE_PROJECT_ID=${stagehandConfig?.browserbaseProjectId ??
         process.env.BROWSERBASE_PROJECT_ID
-      }\n`;
+        }\n`;
     }
 
     if (stagehandConfig?.browserbaseApiKey || process.env.BROWSERBASE_API_KEY) {
-      envContent += `BROWSERBASE_API_KEY=${
-        stagehandConfig?.browserbaseApiKey ?? process.env.BROWSERBASE_API_KEY
-      }\n`;
+      envContent += `BROWSERBASE_API_KEY=${stagehandConfig?.browserbaseApiKey ?? process.env.BROWSERBASE_API_KEY
+        }\n`;
     }
 
     if (stagehandConfig?.anthropicApiKey || process.env.ANTHROPIC_API_KEY) {
-      envContent += `ANTHROPIC_API_KEY=${
-        stagehandConfig?.anthropicApiKey ?? process.env.ANTHROPIC_API_KEY
-      }\n`;
+      envContent += `ANTHROPIC_API_KEY=${stagehandConfig?.anthropicApiKey ?? process.env.ANTHROPIC_API_KEY
+        }\n`;
     }
 
     if (stagehandConfig?.openaiApiKey || process.env.OPENAI_API_KEY) {
-      envContent += `OPENAI_API_KEY=${
-        stagehandConfig?.openaiApiKey ?? process.env.OPENAI_API_KEY
-      }\n`;
+      envContent += `OPENAI_API_KEY=${stagehandConfig?.openaiApiKey ?? process.env.OPENAI_API_KEY
+        }\n`;
     }
 
     console.log(
@@ -130,14 +117,14 @@ async function cloneExample(stagehandConfig: StagehandConfig) {
     console.log(
       boxen(
         chalk.yellow("\nLights, camera, act()!") +
-          "\n\nEdit and run your Stagehand app:\n" +
-          chalk.cyan(`  cd ${stagehandConfig?.projectName}\n`) +
-          chalk.cyan(`  npm install\n`) +
-          chalk.cyan("  npm start") +
-          "\n\n" +
-          `View and edit the code in ${chalk.cyan(
-            `${stagehandConfig?.projectName}/index.ts`
-          )}.\nRun the app with ${chalk.cyan("npm start")}`,
+        "\n\nEdit and run your Stagehand app:\n" +
+        chalk.cyan(`  cd ${stagehandConfig?.projectName}\n`) +
+        chalk.cyan(`  npm install\n`) +
+        chalk.cyan("  npm start") +
+        "\n\n" +
+        `View and edit the code in ${chalk.cyan(
+          `${stagehandConfig?.projectName}/index.ts`
+        )}.\nRun the app with ${chalk.cyan("npm start")}`,
         {
           padding: 1,
           margin: 1,
