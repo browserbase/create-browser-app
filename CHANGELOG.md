@@ -1,5 +1,11 @@
 # create-browser-app
 
+## 1.1.4
+
+### Patch Changes
+
+- no logs
+
 ## 1.1.3
 
 ### Patch Changes
