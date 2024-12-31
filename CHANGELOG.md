@@ -1,5 +1,17 @@
 # create-browser-app
 
+## 1.2.0
+
+### Minor Changes
+
+- remove "run the app" line
+
+## 1.1.5
+
+### Patch Changes
+
+- b6ed836: config.json
+
 ## 1.1.4
 
 ### Patch Changes

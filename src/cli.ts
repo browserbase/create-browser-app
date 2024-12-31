@@ -170,7 +170,7 @@ async function cloneExample(stagehandConfig: StagehandConfig) {
           "\n\n" +
           `View and edit the code in ${chalk.cyan(
             `${stagehandConfig?.projectName}/index.ts`
-          )}.\nRun the app with ${chalk.cyan("npm start")}`,
+          )}.`,
         {
           padding: 1,
           margin: 1,
