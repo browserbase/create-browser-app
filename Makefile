@@ -6,3 +6,8 @@ release:
 		pnpm run release && \
 		rm package.json; \
 	done
+
+run:
+	cp create-browser-app-package.json package.json && \
+	pnpm run start
+	rm package.json
