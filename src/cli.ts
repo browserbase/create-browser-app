@@ -4,6 +4,7 @@ import chalk from "chalk";
 import boxen from "boxen";
 import { execSync } from "child_process";
 import fs from "fs-extra";
+import { glob } from "glob";
 import path from "path";
 import os from "os";
 import inquirer from "inquirer";
@@ -22,6 +23,7 @@ type StagehandConfig = ConstructorParams & {
   browserbaseApiKey?: string;
   anthropicApiKey?: string;
   openaiApiKey?: string;
+  example: string;
 };
 
 async function cloneExample(stagehandConfig: StagehandConfig) {
@@ -34,7 +36,7 @@ async function cloneExample(stagehandConfig: StagehandConfig) {
     // Clone the repository
     console.log(
       chalk.cyan(`Cloning template from the Browserbase Playbook:`) +
-      ` ${REPO_URL}/tree/main/${EXAMPLE_PATH}`
+        ` ${REPO_URL}/tree/main/${EXAMPLE_PATH}`
     );
     execSync(`git clone --depth 1 ${REPO_URL} ${TEMP_DIR}`, {
       stdio: "ignore",
@@ -62,6 +64,46 @@ async function cloneExample(stagehandConfig: StagehandConfig) {
     // Copy example to new project directory
     fs.copySync(exampleDir, projectDir);
 
+    // Read project config
+    const configPath = path.join(projectDir, "config.json");
+    let projectConfig: Record<string, Record<string, string>> = {};
+    if (fs.existsSync(configPath)) {
+      projectConfig = fs.readJsonSync(configPath);
+      fs.unlinkSync(configPath);
+    }
+    // Check if example exists in project config
+    if (!(stagehandConfig.example in projectConfig)) {
+      // Remove the projectDir and throw an error
+      const validExamples = Object.keys(projectConfig);
+      fs.rmSync(projectDir, { recursive: true, force: true });
+      throw new Error(
+        `Invalid example '${
+          stagehandConfig.example
+        }'. Please choose from: ${validExamples.join(", ")}`
+      );
+    }
+
+    // Process file operations from config
+    const exampleConfig = projectConfig[stagehandConfig.example];
+
+    // Handle file operations
+    for (const [sourceFile, operation] of Object.entries(exampleConfig)) {
+      const sourcePath = path.join(projectDir, sourceFile);
+
+      if (operation === "rm") {
+        // Remove the file if it exists
+        if (fs.existsSync(sourcePath)) {
+          fs.unlinkSync(sourcePath);
+        }
+      } else {
+        // Rename file
+        const destPath = path.join(projectDir, operation);
+        if (fs.existsSync(sourcePath)) {
+          fs.renameSync(sourcePath, destPath);
+        }
+      }
+    }
+
     // Update package.json name
     const packageJsonPath = path.join(projectDir, "package.json");
     if (fs.existsSync(packageJsonPath)) {
@@ -79,24 +121,28 @@ async function cloneExample(stagehandConfig: StagehandConfig) {
       stagehandConfig?.browserbaseProjectId ||
       process.env.BROWSERBASE_PROJECT_ID
     ) {
-      envContent += `BROWSERBASE_PROJECT_ID=${stagehandConfig?.browserbaseProjectId ??
+      envContent += `BROWSERBASE_PROJECT_ID=${
+        stagehandConfig?.browserbaseProjectId ??
         process.env.BROWSERBASE_PROJECT_ID
-        }\n`;
+      }\n`;
     }
 
     if (stagehandConfig?.browserbaseApiKey || process.env.BROWSERBASE_API_KEY) {
-      envContent += `BROWSERBASE_API_KEY=${stagehandConfig?.browserbaseApiKey ?? process.env.BROWSERBASE_API_KEY
-        }\n`;
+      envContent += `BROWSERBASE_API_KEY=${
+        stagehandConfig?.browserbaseApiKey ?? process.env.BROWSERBASE_API_KEY
+      }\n`;
     }
 
     if (stagehandConfig?.anthropicApiKey || process.env.ANTHROPIC_API_KEY) {
-      envContent += `ANTHROPIC_API_KEY=${stagehandConfig?.anthropicApiKey ?? process.env.ANTHROPIC_API_KEY
-        }\n`;
+      envContent += `ANTHROPIC_API_KEY=${
+        stagehandConfig?.anthropicApiKey ?? process.env.ANTHROPIC_API_KEY
+      }\n`;
     }
 
     if (stagehandConfig?.openaiApiKey || process.env.OPENAI_API_KEY) {
-      envContent += `OPENAI_API_KEY=${stagehandConfig?.openaiApiKey ?? process.env.OPENAI_API_KEY
-        }\n`;
+      envContent += `OPENAI_API_KEY=${
+        stagehandConfig?.openaiApiKey ?? process.env.OPENAI_API_KEY
+      }\n`;
     }
 
     console.log(
@@ -117,14 +163,14 @@ async function cloneExample(stagehandConfig: StagehandConfig) {
     console.log(
       boxen(
         chalk.yellow("\nLights, camera, act()!") +
-        "\n\nEdit and run your Stagehand app:\n" +
-        chalk.cyan(`  cd ${stagehandConfig?.projectName}\n`) +
-        chalk.cyan(`  npm install\n`) +
-        chalk.cyan("  npm start") +
-        "\n\n" +
-        `View and edit the code in ${chalk.cyan(
-          `${stagehandConfig?.projectName}/index.ts`
-        )}.\nRun the app with ${chalk.cyan("npm start")}`,
+          "\n\nEdit and run your Stagehand app:\n" +
+          chalk.cyan(`  cd ${stagehandConfig?.projectName}\n`) +
+          chalk.cyan(`  npm install\n`) +
+          chalk.cyan("  npm start") +
+          "\n\n" +
+          `View and edit the code in ${chalk.cyan(
+            `${stagehandConfig?.projectName}/index.ts`
+          )}.\nRun the app with ${chalk.cyan("npm start")}`,
         {
           padding: 1,
           margin: 1,
@@ -146,7 +192,10 @@ async function cloneExample(stagehandConfig: StagehandConfig) {
   }
 }
 
-async function getStagehandConfig(projectName?: string) {
+async function getStagehandConfig(
+  example: string,
+  projectName?: string
+): Promise<StagehandConfig> {
   const answers = await inquirer.prompt([
     {
       type: "input",
@@ -241,18 +290,24 @@ async function getStagehandConfig(projectName?: string) {
   ]);
   return {
     ...answers,
+    example: example,
     projectName: projectName ?? answers.projectName,
   };
 }
 
+const DEFAULT_EXAMPLE = "default";
 program
   .name("create-browser-app")
   .description(
     "Create a new browser application from browserbase/playbook examples"
   )
   .argument("[project-name]", "Name of the project")
-  .action(async (projectName?: string) => {
-    const stagehandConfig = await getStagehandConfig(projectName);
+  .option("-e, --example <example>", "Example to use", DEFAULT_EXAMPLE)
+  .action(async (projectName?: string, args?: { example?: string }) => {
+    const stagehandConfig = await getStagehandConfig(
+      args?.example ?? DEFAULT_EXAMPLE,
+      projectName
+    );
 
     await cloneExample(stagehandConfig);
   });

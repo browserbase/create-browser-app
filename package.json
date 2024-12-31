@@ -29,6 +29,7 @@
     "commander": "^12.1.0",
     "create-next-app": "latest",
     "fs-extra": "^11.2.0",
+    "glob": "^11.0.0",
     "inquirer": "^12.2.0"
   },
   "devDependencies": {
