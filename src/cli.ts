@@ -11,7 +11,7 @@ import inquirer from "inquirer";
 import { ConstructorParams } from "@browserbasehq/stagehand";
 import { generateConfig } from "./generateStagehandConfig";
 const REPO_URL = "https://github.com/browserbase/playbook";
-const EXAMPLE_PATH = "stagehand-quickstart";
+const REPO_BRANCH = "main";
 const TEMP_DIR = path.join(
   os.tmpdir(),
   "browserbase-clone-" + Math.random().toString(36).substr(2, 9)
@@ -36,19 +36,11 @@ async function cloneExample(stagehandConfig: StagehandConfig) {
     // Clone the repository
     console.log(
       chalk.cyan(`Cloning template from the Browserbase Playbook:`) +
-        ` ${REPO_URL}/tree/main/${EXAMPLE_PATH}`
+        ` ${REPO_URL} (branch: ${REPO_BRANCH})`
     );
-    execSync(`git clone --depth 1 ${REPO_URL} ${TEMP_DIR}`, {
+    execSync(`git clone --depth 1 -b ${REPO_BRANCH} ${REPO_URL} ${TEMP_DIR}`, {
       stdio: "ignore",
     });
-
-    // Ensure the example directory exists
-    const exampleDir = path.join(TEMP_DIR, EXAMPLE_PATH);
-    if (!fs.existsSync(exampleDir)) {
-      throw new Error(
-        `Example directory '${EXAMPLE_PATH}' not found in repository`
-      );
-    }
 
     // Create project directory
     const projectDir = path.resolve(
@@ -62,7 +54,7 @@ async function cloneExample(stagehandConfig: StagehandConfig) {
     }
 
     // Copy example to new project directory
-    fs.copySync(exampleDir, projectDir);
+    fs.copySync(TEMP_DIR, projectDir);
 
     // Read project config
     const configPath = path.join(projectDir, "config.json");
@@ -71,6 +63,7 @@ async function cloneExample(stagehandConfig: StagehandConfig) {
       projectConfig = fs.readJsonSync(configPath);
       fs.unlinkSync(configPath);
     }
+
     // Check if example exists in project config
     if (!(stagehandConfig.example in projectConfig)) {
       // Remove the projectDir and throw an error
@@ -102,6 +95,12 @@ async function cloneExample(stagehandConfig: StagehandConfig) {
           fs.renameSync(sourcePath, destPath);
         }
       }
+    }
+
+    // Delete examples directory if it exists
+    const examplesDir = path.join(projectDir, "examples");
+    if (fs.existsSync(examplesDir)) {
+      fs.rmSync(examplesDir, { recursive: true, force: true });
     }
 
     // Update package.json name
