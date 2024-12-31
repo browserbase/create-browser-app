@@ -1,5 +1,95 @@
 # create-browser-app
 
+## 1.2.2
+
+### Patch Changes
+
+- browserbase
+
+## 1.2.2
+
+### Patch Changes
+
+- browserbase
+
+## 1.2.2
+
+### Patch Changes
+
+- browserbase
+
+## 1.2.2
+
+### Patch Changes
+
+- browserbase
+
+## 1.2.2
+
+### Patch Changes
+
+- browserbase
+
+## 1.2.2
+
+### Patch Changes
+
+- initial
+
+## 1.2.2
+
+### Patch Changes
+
+- one more
+
+## 1.2.2
+
+### Patch Changes
+
+- one more
+
+## 1.2.2
+
+### Patch Changes
+
+- one more
+
+## 1.2.2
+
+### Patch Changes
+
+- pls
+
+## 1.2.2
+
+### Patch Changes
+
+- pls
+
+## 1.2.2
+
+### Patch Changes
+
+- pls
+
+## 1.2.2
+
+### Patch Changes
+
+- initial
+
+## 1.2.2
+
+### Patch Changes
+
+- initial
+
+## 1.2.2
+
+### Patch Changes
+
+- initial
+
 ## 1.2.1
 
 ### Patch Changes
