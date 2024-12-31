@@ -1,5 +1,11 @@
 # create-browser-app
 
+## 1.2.1
+
+### Patch Changes
+
+- account for cleaned up quickstart
+
 ## 1.2.0
 
 ### Minor Changes
