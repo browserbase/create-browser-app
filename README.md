@@ -23,3 +23,7 @@ npm install -g create-browser-app
 ```bash
 npx create-browser-app
 ```
+
+## Run/Release
+
+This project uses a `Makefile` to automate the release process. You can run `make run` to run the CLI and `make release` to release a new version.

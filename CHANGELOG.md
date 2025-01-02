@@ -4,6 +4,12 @@
 
 ### Patch Changes
 
+- test
+
+## 1.2.2
+
+### Patch Changes
+
 - browserbase
 
 ## 1.2.2
