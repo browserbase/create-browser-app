@@ -4,6 +4,36 @@
 
 ### Patch Changes
 
+- fix git init
+
+## 1.2.2
+
+### Patch Changes
+
+- fix git init
+
+## 1.2.2
+
+### Patch Changes
+
+- fix git init
+
+## 1.2.2
+
+### Patch Changes
+
+- fix git init
+
+## 1.2.2
+
+### Patch Changes
+
+- fix git init
+
+## 1.2.2
+
+### Patch Changes
+
 - test
 
 ## 1.2.2

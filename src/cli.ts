@@ -36,7 +36,7 @@ async function cloneExample(stagehandConfig: StagehandConfig) {
     // Clone the repository
     console.log(
       chalk.cyan(`Cloning template from the Browserbase Playbook:`) +
-        ` ${REPO_URL} (branch: ${REPO_BRANCH})`
+      ` ${REPO_URL} (branch: ${REPO_BRANCH})`
     );
     execSync(`git clone --depth 1 -b ${REPO_BRANCH} ${REPO_URL} ${TEMP_DIR}`, {
       stdio: "ignore",
@@ -70,8 +70,7 @@ async function cloneExample(stagehandConfig: StagehandConfig) {
       const validExamples = Object.keys(projectConfig);
       fs.rmSync(projectDir, { recursive: true, force: true });
       throw new Error(
-        `Invalid example '${
-          stagehandConfig.example
+        `Invalid example '${stagehandConfig.example
         }'. Please choose from: ${validExamples.join(", ")}`
       );
     }
@@ -103,6 +102,13 @@ async function cloneExample(stagehandConfig: StagehandConfig) {
       fs.rmSync(examplesDir, { recursive: true, force: true });
     }
 
+    // Delete .git and re-init
+    const gitDir = path.join(projectDir, ".git");
+    if (fs.existsSync(gitDir)) {
+      fs.rmSync(gitDir, { recursive: true, force: true });
+      execSync(`git init`, { cwd: projectDir });
+    }
+
     // Update package.json name
     const packageJsonPath = path.join(projectDir, "package.json");
     if (fs.existsSync(packageJsonPath)) {
@@ -120,28 +126,24 @@ async function cloneExample(stagehandConfig: StagehandConfig) {
       stagehandConfig?.browserbaseProjectId ||
       process.env.BROWSERBASE_PROJECT_ID
     ) {
-      envContent += `BROWSERBASE_PROJECT_ID=${
-        stagehandConfig?.browserbaseProjectId ??
+      envContent += `BROWSERBASE_PROJECT_ID=${stagehandConfig?.browserbaseProjectId ??
         process.env.BROWSERBASE_PROJECT_ID
-      }\n`;
+        }\n`;
     }
 
     if (stagehandConfig?.browserbaseApiKey || process.env.BROWSERBASE_API_KEY) {
-      envContent += `BROWSERBASE_API_KEY=${
-        stagehandConfig?.browserbaseApiKey ?? process.env.BROWSERBASE_API_KEY
-      }\n`;
+      envContent += `BROWSERBASE_API_KEY=${stagehandConfig?.browserbaseApiKey ?? process.env.BROWSERBASE_API_KEY
+        }\n`;
     }
 
     if (stagehandConfig?.anthropicApiKey || process.env.ANTHROPIC_API_KEY) {
-      envContent += `ANTHROPIC_API_KEY=${
-        stagehandConfig?.anthropicApiKey ?? process.env.ANTHROPIC_API_KEY
-      }\n`;
+      envContent += `ANTHROPIC_API_KEY=${stagehandConfig?.anthropicApiKey ?? process.env.ANTHROPIC_API_KEY
+        }\n`;
     }
 
     if (stagehandConfig?.openaiApiKey || process.env.OPENAI_API_KEY) {
-      envContent += `OPENAI_API_KEY=${
-        stagehandConfig?.openaiApiKey ?? process.env.OPENAI_API_KEY
-      }\n`;
+      envContent += `OPENAI_API_KEY=${stagehandConfig?.openaiApiKey ?? process.env.OPENAI_API_KEY
+        }\n`;
     }
 
     console.log(
@@ -162,14 +164,14 @@ async function cloneExample(stagehandConfig: StagehandConfig) {
     console.log(
       boxen(
         chalk.yellow("\nLights, camera, act()!") +
-          "\n\nEdit and run your Stagehand app:\n" +
-          chalk.cyan(`  cd ${stagehandConfig?.projectName}\n`) +
-          chalk.cyan(`  npm install\n`) +
-          chalk.cyan("  npm start") +
-          "\n\n" +
-          `View and edit the code in ${chalk.cyan(
-            `${stagehandConfig?.projectName}/index.ts`
-          )}.`,
+        "\n\nEdit and run your Stagehand app:\n" +
+        chalk.cyan(`  cd ${stagehandConfig?.projectName}\n`) +
+        chalk.cyan(`  npm install\n`) +
+        chalk.cyan("  npm start") +
+        "\n\n" +
+        `View and edit the code in ${chalk.cyan(
+          `${stagehandConfig?.projectName}/index.ts`
+        )}.`,
         {
           padding: 1,
           margin: 1,
