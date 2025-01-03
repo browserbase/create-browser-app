@@ -1,5 +1,23 @@
 # create-browser-app
 
+## 1.2.4
+
+### Patch Changes
+
+- add git init
+
+## 1.2.3
+
+### Patch Changes
+
+- fix git init
+
+## 1.2.2
+
+### Patch Changes
+
+- only remove git
+
 ## 1.2.2
 
 ### Patch Changes

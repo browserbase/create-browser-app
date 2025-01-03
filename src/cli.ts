@@ -106,7 +106,7 @@ async function cloneExample(stagehandConfig: StagehandConfig) {
     const gitDir = path.join(projectDir, ".git");
     if (fs.existsSync(gitDir)) {
       fs.rmSync(gitDir, { recursive: true, force: true });
-      execSync(`git init`, { cwd: projectDir });
+      execSync(`cd ${projectDir} && git init`, { stdio: "ignore" });
     }
 
     // Update package.json name
