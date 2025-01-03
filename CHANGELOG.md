@@ -1,5 +1,11 @@
 # create-browser-app
 
+## 1.2.5
+
+### Patch Changes
+
+- da6fefb: fix recursive directory creation
+
 ## 1.2.4
 
 ### Patch Changes
