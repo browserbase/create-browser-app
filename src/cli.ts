@@ -302,7 +302,7 @@ async function getStagehandConfig(
   };
 }
 
-const DEFAULT_EXAMPLE = "default";
+const DEFAULT_EXAMPLE = "blank";
 program
   .name("create-browser-app")
   .description(
