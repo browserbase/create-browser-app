@@ -226,6 +226,7 @@ async function getStagehandConfig(
           name: "Anthropic Claude 3.5 Sonnet",
           value: "claude-3-5-sonnet-20241022",
         },
+        { name: "Configure my own model", value: "other" },
       ],
       default: "gpt-4o",
     },
@@ -250,15 +251,15 @@ async function getStagehandConfig(
         "Would you like to run locally or on Browserbase (10 free sessions)?",
       choices: [
         {
-          name: "Browserbase",
-          value: "BROWSERBASE",
-        },
-        {
           name: "Local",
           value: "LOCAL",
         },
+        {
+          name: "Browserbase",
+          value: "BROWSERBASE",
+        },
       ],
-      default: "BROWSERBASE",
+      default: "LOCAL",
     },
     {
       type: "input",
