@@ -1,5 +1,11 @@
 # create-browser-app
 
+## 1.2.6
+
+### Patch Changes
+
+- default?
+
 ## 1.2.5
 
 ### Patch Changes
