@@ -1,5 +1,11 @@
 # create-browser-app
 
+## 1.2.10
+
+### Patch Changes
+
+- add link to docs
+
 ## 1.2.9
 
 ### Patch Changes

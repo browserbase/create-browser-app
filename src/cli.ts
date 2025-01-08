@@ -177,7 +177,11 @@ async function cloneExample(stagehandConfig: StagehandConfig) {
           "\n\n" +
           `View and edit the code in ${chalk.cyan(
             `${stagehandConfig?.projectName}/index.ts`
-          )}.`,
+          )}.` +
+          "\n\n" +
+          chalk.yellow(
+            "Check out our docs for more information: https://docs.stagehand.dev"
+          ),
         {
           padding: 1,
           margin: 1,
