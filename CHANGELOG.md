@@ -1,5 +1,11 @@
 # create-browser-app
 
+## 1.2.8
+
+### Patch Changes
+
+- final public
+
 ## 1.2.7
 
 ### Patch Changes
