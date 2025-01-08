@@ -1,5 +1,11 @@
 # create-browser-app
 
+## 1.2.9
+
+### Patch Changes
+
+- fix custom client
+
 ## 1.2.8
 
 ### Patch Changes

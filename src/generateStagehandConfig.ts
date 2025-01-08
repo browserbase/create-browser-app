@@ -21,14 +21,20 @@ const StagehandConfig: ConstructorParams = {
   enableCaching: ${config.enableCaching} /* Enable caching functionality */,
   browserbaseSessionID:
     undefined /* Session ID for resuming Browserbase sessions */,
-  modelName: ${JSON.stringify(config.modelName)} /* Name of the model to use */,
-  modelClientOptions: {
+  ${
+    config.modelName?.includes("claude") || config.modelName?.includes("gpt")
+      ? `modelName: ${JSON.stringify(
+          config.modelName
+        )} /* Name of the model to use */,
+	modelClientOptions: {
     apiKey: ${
       config.modelName?.includes("claude")
         ? "process.env.ANTHROPIC_API_KEY"
         : "process.env.OPENAI_API_KEY"
     },
-  } /* Configuration options for the model client */,
+  } /* Configuration options for the model client */,`
+      : ""
+  }
 };
 
 export default StagehandConfig;
