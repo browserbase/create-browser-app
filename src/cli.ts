@@ -23,6 +23,7 @@ type StagehandConfig = ConstructorParams & {
   anthropicApiKey?: string;
   openaiApiKey?: string;
   example: string;
+  useQuickstart: boolean;
 };
 
 async function cloneExample(stagehandConfig: StagehandConfig) {
@@ -221,6 +222,13 @@ async function getStagehandConfig(
       },
     },
     {
+      type: "confirm",
+      name: "useQuickstart",
+      message: "Would you like to start with a quickstart example?",
+      when: () => !example || example === DEFAULT_EXAMPLE,
+      default: true,
+    },
+    {
       type: "list",
       name: "modelName",
       message: "Select AI model to use",
@@ -296,13 +304,13 @@ async function getStagehandConfig(
     {
       type: "confirm",
       name: "enableCaching",
-      message: "Enable prompt caching?",
-      default: true,
+      message: "Enable local prompt caching?",
+      default: false,
     },
   ]);
   return {
     ...answers,
-    example: example,
+    example: answers.useQuickstart ? "quickstart" : example,
     projectName: projectName ?? answers.projectName,
   };
 }

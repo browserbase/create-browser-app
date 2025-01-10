@@ -1,5 +1,11 @@
 # create-browser-app
 
+## 1.2.11
+
+### Patch Changes
+
+- add quickstart and make caching default false
+
 ## 1.2.10
 
 ### Patch Changes
