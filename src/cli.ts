@@ -117,6 +117,10 @@ async function cloneExample(stagehandConfig: StagehandConfig) {
     if (fs.existsSync(packageJsonPath)) {
       const packageJson = fs.readJsonSync(packageJsonPath);
       packageJson.name = stagehandConfig?.projectName;
+
+      if (stagehandConfig.example === "custom-client-ollama") {
+        packageJson.dependencies.openai = "latest";
+      }
       fs.writeJsonSync(packageJsonPath, packageJson, { spaces: 2 });
     }
 
@@ -241,20 +245,25 @@ async function getStagehandConfig(
         { name: "Configure my own model", value: "other" },
       ],
       default: "gpt-4o",
+      when: () => example !== "custom-client-ollama",
     },
     {
       type: "input",
       name: "anthropicApiKey",
       message: "Enter your Anthropic API key",
       when: (answers) =>
-        answers.modelName.includes("claude") && !process.env.ANTHROPIC_API_KEY,
+        answers.modelName &&
+        answers.modelName.includes("claude") &&
+        !process.env.ANTHROPIC_API_KEY,
     },
     {
       type: "input",
       name: "openaiApiKey",
       message: "Enter your OpenAI API key",
       when: (answers) =>
-        answers.modelName.includes("gpt") && !process.env.OPENAI_API_KEY,
+        answers.modelName &&
+        answers.modelName.includes("gpt") &&
+        !process.env.OPENAI_API_KEY,
     },
     {
       type: "list",

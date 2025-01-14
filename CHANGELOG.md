@@ -1,5 +1,11 @@
 # create-browser-app
 
+## 1.2.12
+
+### Patch Changes
+
+- add ollama example
+
 ## 1.2.11
 
 ### Patch Changes
