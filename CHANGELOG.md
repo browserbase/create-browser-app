@@ -1,5 +1,11 @@
 # create-browser-app
 
+## 1.2.13
+
+### Patch Changes
+
+- say to edit main.ts
+
 ## 1.2.12
 
 ### Patch Changes

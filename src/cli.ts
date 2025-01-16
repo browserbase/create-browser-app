@@ -181,7 +181,12 @@ async function cloneExample(stagehandConfig: StagehandConfig) {
           chalk.cyan("  npm start") +
           "\n\n" +
           `View and edit the code in ${chalk.cyan(
-            `${stagehandConfig?.projectName}/index.ts`
+            `${stagehandConfig?.projectName}/${
+              stagehandConfig?.example === "quickstart" ||
+              stagehandConfig?.example === "blank"
+                ? "main.ts"
+                : "index.ts"
+            }`
           )}.` +
           "\n\n" +
           chalk.yellow(
