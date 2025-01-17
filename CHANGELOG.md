@@ -1,5 +1,11 @@
 # create-browser-app
 
+## 1.2.14
+
+### Patch Changes
+
+- don't run if in git
+
 ## 1.2.13
 
 ### Patch Changes

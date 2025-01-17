@@ -109,7 +109,20 @@ async function cloneExample(stagehandConfig: StagehandConfig) {
     const gitDir = path.join(projectDir, ".git");
     if (fs.existsSync(gitDir)) {
       fs.rmSync(gitDir, { recursive: true, force: true });
-      execSync(`cd ${projectDir} && git init`, { stdio: "ignore" });
+
+      // Check if directory is not already part of a git repository
+      try {
+        execSync("git rev-parse --is-inside-work-tree", {
+          stdio: "ignore",
+          cwd: projectDir,
+        });
+      } catch {
+        // Directory is not part of a git repo, so initialize one
+        execSync(`git init`, {
+          stdio: "ignore",
+          cwd: projectDir,
+        });
+      }
     }
 
     // Update package.json name
