@@ -266,18 +266,22 @@ async function getStagehandConfig(
       when: () => example !== "custom-client-ollama",
     },
     {
-      type: "input",
+      type: "password",
       name: "anthropicApiKey",
-      message: "Enter your Anthropic API key",
+      message: `Enter your Anthropic API key (${chalk.blue(
+        "https://console.anthropic.com/settings/keys"
+      )})`,
       when: (answers) =>
         answers.modelName &&
         answers.modelName.includes("claude") &&
         !process.env.ANTHROPIC_API_KEY,
     },
     {
-      type: "input",
+      type: "password",
       name: "openaiApiKey",
-      message: "Enter your OpenAI API key",
+      message: `Enter your OpenAI API key (${chalk.blue(
+        "https://platform.openai.com/api-keys"
+      )})`,
       when: (answers) =>
         answers.modelName &&
         answers.modelName.includes("gpt") &&
@@ -301,7 +305,7 @@ async function getStagehandConfig(
       default: "LOCAL",
     },
     {
-      type: "input",
+      type: "password",
       name: "browserbaseProjectId",
       message:
         "Go to Browserbase Settings: https://www.browserbase.com/settings\nEnter your project ID",
@@ -309,7 +313,7 @@ async function getStagehandConfig(
         answers.env === "BROWSERBASE" && !process.env.BROWSERBASE_PROJECT_ID,
     },
     {
-      type: "input",
+      type: "password",
       name: "browserbaseApiKey",
       message: "Enter your Browserbase API key",
       when: (answers) =>

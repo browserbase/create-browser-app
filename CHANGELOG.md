@@ -1,5 +1,23 @@
 # create-browser-app
 
+## 1.2.17
+
+### Patch Changes
+
+- hide passwords
+
+## 1.2.16
+
+### Patch Changes
+
+- oops
+
+## 1.2.15
+
+### Patch Changes
+
+- add link to api keys
+
 ## 1.2.14
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "create-browser-app",
-  "version": "1.2.14",
+  "version": "1.2.17",
   "description": "",
   "bin": {
     "create-browser-app": "./dist/cli.js"
