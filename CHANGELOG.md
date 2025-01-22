@@ -1,5 +1,11 @@
 # create-browser-app
 
+## 1.2.18
+
+### Patch Changes
+
+- save .env in tmp
+
 ## 1.2.17
 
 ### Patch Changes

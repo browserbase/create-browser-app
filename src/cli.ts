@@ -9,12 +9,84 @@ import os from "os";
 import inquirer from "inquirer";
 import { ConstructorParams } from "@browserbasehq/stagehand";
 import { generateConfig } from "./generateStagehandConfig";
+
 const REPO_URL = "https://github.com/browserbase/playbook";
 const REPO_BRANCH = "main";
 const TEMP_DIR = path.join(
   os.tmpdir(),
   "browserbase-clone-" + Math.random().toString(36).substr(2, 9)
 );
+const STAGEHAND_ENV_DIR = path.join(os.tmpdir(), "stagehand");
+const STAGEHAND_ENV_FILE = path.join(STAGEHAND_ENV_DIR, ".env");
+
+// Function to save environment variables to temp directory
+function saveEnvVariables(stagehandConfig: StagehandConfig) {
+  let envContent = "";
+
+  if (
+    stagehandConfig?.browserbaseProjectId ||
+    process.env.BROWSERBASE_PROJECT_ID
+  ) {
+    envContent += `BROWSERBASE_PROJECT_ID=${
+      stagehandConfig?.browserbaseProjectId ??
+      process.env.BROWSERBASE_PROJECT_ID
+    }\n`;
+  }
+
+  if (stagehandConfig?.browserbaseApiKey || process.env.BROWSERBASE_API_KEY) {
+    envContent += `BROWSERBASE_API_KEY=${
+      stagehandConfig?.browserbaseApiKey ?? process.env.BROWSERBASE_API_KEY
+    }\n`;
+  }
+
+  if (stagehandConfig?.anthropicApiKey || process.env.ANTHROPIC_API_KEY) {
+    envContent += `ANTHROPIC_API_KEY=${
+      stagehandConfig?.anthropicApiKey ?? process.env.ANTHROPIC_API_KEY
+    }\n`;
+  }
+
+  if (stagehandConfig?.openaiApiKey || process.env.OPENAI_API_KEY) {
+    envContent += `OPENAI_API_KEY=${
+      stagehandConfig?.openaiApiKey ?? process.env.OPENAI_API_KEY
+    }\n`;
+  }
+
+  if (envContent) {
+    fs.mkdirSync(STAGEHAND_ENV_DIR, { recursive: true });
+    fs.writeFileSync(STAGEHAND_ENV_FILE, envContent);
+  }
+}
+
+// Function to load environment variables from temp directory
+function loadEnvVariables(): Partial<StagehandConfig> {
+  if (!fs.existsSync(STAGEHAND_ENV_FILE)) {
+    return {};
+  }
+
+  const envContent = fs.readFileSync(STAGEHAND_ENV_FILE, "utf-8");
+  const envVars = envContent.split("\n").filter(Boolean);
+  const config: Partial<StagehandConfig> = {};
+
+  for (const line of envVars) {
+    const [key, value] = line.split("=");
+    switch (key) {
+      case "BROWSERBASE_PROJECT_ID":
+        config.browserbaseProjectId = value;
+        break;
+      case "BROWSERBASE_API_KEY":
+        config.browserbaseApiKey = value;
+        break;
+      case "ANTHROPIC_API_KEY":
+        config.anthropicApiKey = value;
+        break;
+      case "OPENAI_API_KEY":
+        config.openaiApiKey = value;
+        break;
+    }
+  }
+
+  return config;
+}
 
 type StagehandConfig = ConstructorParams & {
   projectName: string;
@@ -30,6 +102,9 @@ async function cloneExample(stagehandConfig: StagehandConfig) {
   console.log(chalk.blue("Creating new browser app..."));
 
   try {
+    // Save environment variables to temp directory
+    saveEnvVariables(stagehandConfig);
+
     // Create temporary directory for cloning
     fs.mkdirSync(TEMP_DIR, { recursive: true });
 
@@ -230,6 +305,9 @@ async function getStagehandConfig(
   example: string,
   projectName?: string
 ): Promise<StagehandConfig> {
+  // Load saved environment variables
+  const savedEnv = loadEnvVariables();
+
   const answers = await inquirer.prompt([
     {
       type: "input",
@@ -274,7 +352,8 @@ async function getStagehandConfig(
       when: (answers) =>
         answers.modelName &&
         answers.modelName.includes("claude") &&
-        !process.env.ANTHROPIC_API_KEY,
+        !process.env.ANTHROPIC_API_KEY &&
+        !savedEnv.anthropicApiKey,
     },
     {
       type: "password",
@@ -285,7 +364,8 @@ async function getStagehandConfig(
       when: (answers) =>
         answers.modelName &&
         answers.modelName.includes("gpt") &&
-        !process.env.OPENAI_API_KEY,
+        !process.env.OPENAI_API_KEY &&
+        !savedEnv.openaiApiKey,
     },
     {
       type: "list",
@@ -310,14 +390,18 @@ async function getStagehandConfig(
       message:
         "Go to Browserbase Settings: https://www.browserbase.com/settings\nEnter your project ID",
       when: (answers) =>
-        answers.env === "BROWSERBASE" && !process.env.BROWSERBASE_PROJECT_ID,
+        answers.env === "BROWSERBASE" &&
+        !process.env.BROWSERBASE_PROJECT_ID &&
+        !savedEnv.browserbaseProjectId,
     },
     {
       type: "password",
       name: "browserbaseApiKey",
       message: "Enter your Browserbase API key",
       when: (answers) =>
-        answers.env === "BROWSERBASE" && !process.env.BROWSERBASE_API_KEY,
+        answers.env === "BROWSERBASE" &&
+        !process.env.BROWSERBASE_API_KEY &&
+        !savedEnv.browserbaseApiKey,
     },
     {
       type: "confirm",
@@ -339,10 +423,17 @@ async function getStagehandConfig(
       default: false,
     },
   ]);
+
+  // Merge saved environment variables with new answers
   return {
     ...answers,
     example: answers.useQuickstart ? "quickstart" : example,
     projectName: projectName ?? answers.projectName,
+    browserbaseProjectId:
+      answers.browserbaseProjectId ?? savedEnv.browserbaseProjectId,
+    browserbaseApiKey: answers.browserbaseApiKey ?? savedEnv.browserbaseApiKey,
+    anthropicApiKey: answers.anthropicApiKey ?? savedEnv.anthropicApiKey,
+    openaiApiKey: answers.openaiApiKey ?? savedEnv.openaiApiKey,
   };
 }
 
