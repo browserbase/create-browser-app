@@ -1,5 +1,11 @@
 # create-browser-app
 
+## 1.3.1
+
+### Patch Changes
+
+- get latest npm version instead of saying latest
+
 ## 1.3.0
 
 ### Minor Changes
