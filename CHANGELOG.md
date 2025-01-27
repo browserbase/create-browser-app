@@ -1,5 +1,11 @@
 # create-browser-app
 
+## 1.3.0
+
+### Minor Changes
+
+- aisdk
+
 ## 1.2.18
 
 ### Patch Changes

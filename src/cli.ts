@@ -11,7 +11,7 @@ import { ConstructorParams } from "@browserbasehq/stagehand";
 import { generateConfig } from "./generateStagehandConfig";
 
 const REPO_URL = "https://github.com/browserbase/playbook";
-const REPO_BRANCH = "anirudh/vercel-ai-sdk";
+const REPO_BRANCH = "main";
 const TEMP_DIR = path.join(
   os.tmpdir(),
   "browserbase-clone-" + Math.random().toString(36).substr(2, 9)
@@ -209,6 +209,10 @@ async function cloneExample(stagehandConfig: StagehandConfig) {
       if (stagehandConfig.example === "custom-client-ollama") {
         packageJson.dependencies.openai = "latest";
       }
+      if (stagehandConfig.example === "custom-client-aisdk") {
+        packageJson.dependencies["ai"] = "latest";
+        packageJson.dependencies["@ai-sdk/openai"] = "latest";
+      }
       fs.writeJsonSync(packageJsonPath, packageJson, { spaces: 2 });
     }
 
@@ -266,9 +270,6 @@ async function cloneExample(stagehandConfig: StagehandConfig) {
           "\n\nEdit and run your Stagehand app:\n" +
           chalk.cyan(`  cd ${stagehandConfig?.projectName}\n`) +
           chalk.cyan(`  npm install\n`) +
-          (stagehandConfig?.example === "custom-client-aisdk"
-            ? chalk.cyan(`  npm install ai @ai-sdk/openai\n`)
-            : "") +
           chalk.cyan("  npm start") +
           "\n\n" +
           `View and edit the code in ${chalk.cyan(
