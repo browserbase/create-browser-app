@@ -11,7 +11,7 @@ import { ConstructorParams } from "@browserbasehq/stagehand";
 import { generateConfig } from "./generateStagehandConfig";
 
 const REPO_URL = "https://github.com/browserbase/playbook";
-const REPO_BRANCH = "main";
+const REPO_BRANCH = "anirudh/vercel-ai-sdk";
 const TEMP_DIR = path.join(
   os.tmpdir(),
   "browserbase-clone-" + Math.random().toString(36).substr(2, 9)
@@ -266,6 +266,9 @@ async function cloneExample(stagehandConfig: StagehandConfig) {
           "\n\nEdit and run your Stagehand app:\n" +
           chalk.cyan(`  cd ${stagehandConfig?.projectName}\n`) +
           chalk.cyan(`  npm install\n`) +
+          (stagehandConfig?.example === "custom-client-aisdk"
+            ? chalk.cyan(`  npm install ai @ai-sdk/openai\n`)
+            : "") +
           chalk.cyan("  npm start") +
           "\n\n" +
           `View and edit the code in ${chalk.cyan(
@@ -341,7 +344,7 @@ async function getStagehandConfig(
         { name: "Configure my own model", value: "other" },
       ],
       default: "gpt-4o",
-      when: () => example !== "custom-client-ollama",
+      when: () => !example.includes("custom-client"),
     },
     {
       type: "password",
