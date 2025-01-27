@@ -9,6 +9,7 @@ import os from "os";
 import inquirer from "inquirer";
 import { ConstructorParams } from "@browserbasehq/stagehand";
 import { generateConfig } from "./generateStagehandConfig";
+import { getLatestNpmVersion } from "./utils/npm";
 
 const REPO_URL = "https://github.com/browserbase/playbook";
 const REPO_BRANCH = "main";
@@ -206,12 +207,19 @@ async function cloneExample(stagehandConfig: StagehandConfig) {
       const packageJson = fs.readJsonSync(packageJsonPath);
       packageJson.name = stagehandConfig?.projectName;
 
+      packageJson.dependencies["@browserbasehq/stagehand"] =
+        await getLatestNpmVersion("@browserbasehq/stagehand");
+      packageJson.dependencies["@browserbasehq/sdk"] =
+        await getLatestNpmVersion("@browserbasehq/sdk");
+
       if (stagehandConfig.example === "custom-client-ollama") {
-        packageJson.dependencies.openai = "latest";
+        packageJson.dependencies.openai = await getLatestNpmVersion("openai");
       }
       if (stagehandConfig.example === "custom-client-aisdk") {
-        packageJson.dependencies["ai"] = "latest";
-        packageJson.dependencies["@ai-sdk/openai"] = "latest";
+        packageJson.dependencies["ai"] = await getLatestNpmVersion("ai");
+        packageJson.dependencies["@ai-sdk/openai"] = await getLatestNpmVersion(
+          "@ai-sdk/openai"
+        );
       }
       fs.writeJsonSync(packageJsonPath, packageJson, { spaces: 2 });
     }
