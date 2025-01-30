@@ -99,7 +99,10 @@ type StagehandConfig = ConstructorParams & {
   useQuickstart: boolean;
 };
 
-async function cloneExample(stagehandConfig: StagehandConfig) {
+async function cloneExample(
+  stagehandConfig: StagehandConfig,
+  useAlpha: boolean = false
+) {
   console.log(chalk.blue("Creating new browser app..."));
 
   try {
@@ -207,8 +210,9 @@ async function cloneExample(stagehandConfig: StagehandConfig) {
       const packageJson = fs.readJsonSync(packageJsonPath);
       packageJson.name = stagehandConfig?.projectName;
 
-      packageJson.dependencies["@browserbasehq/stagehand"] =
-        await getLatestNpmVersion("@browserbasehq/stagehand");
+      packageJson.dependencies["@browserbasehq/stagehand"] = useAlpha
+        ? "alpha"
+        : await getLatestNpmVersion("@browserbasehq/stagehand");
       packageJson.dependencies["@browserbasehq/sdk"] =
         await getLatestNpmVersion("@browserbasehq/sdk");
 
@@ -457,13 +461,19 @@ program
   )
   .argument("[project-name]", "Name of the project")
   .option("-e, --example <example>", "Example to use", DEFAULT_EXAMPLE)
-  .action(async (projectName?: string, args?: { example?: string }) => {
-    const stagehandConfig = await getStagehandConfig(
-      args?.example ?? DEFAULT_EXAMPLE,
-      projectName
-    );
+  .option("--alpha", "Use alpha version of @browserbasehq/stagehand")
+  .action(
+    async (
+      projectName?: string,
+      args?: { example?: string; alpha?: boolean }
+    ) => {
+      const stagehandConfig = await getStagehandConfig(
+        args?.example ?? DEFAULT_EXAMPLE,
+        projectName
+      );
 
-    await cloneExample(stagehandConfig);
-  });
+      await cloneExample(stagehandConfig, args?.alpha ?? false);
+    }
+  );
 
 program.parse();

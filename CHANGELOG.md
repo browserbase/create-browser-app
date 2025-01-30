@@ -1,5 +1,11 @@
 # create-browser-app
 
+## 1.4.0
+
+### Minor Changes
+
+- add alpha flag
+
 ## 1.3.1
 
 ### Patch Changes
