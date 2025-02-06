@@ -28,28 +28,24 @@ function saveEnvVariables(stagehandConfig: StagehandConfig) {
     stagehandConfig?.browserbaseProjectId ||
     process.env.BROWSERBASE_PROJECT_ID
   ) {
-    envContent += `BROWSERBASE_PROJECT_ID=${
-      stagehandConfig?.browserbaseProjectId ??
+    envContent += `BROWSERBASE_PROJECT_ID=${stagehandConfig?.browserbaseProjectId ??
       process.env.BROWSERBASE_PROJECT_ID
-    }\n`;
+      }\n`;
   }
 
   if (stagehandConfig?.browserbaseApiKey || process.env.BROWSERBASE_API_KEY) {
-    envContent += `BROWSERBASE_API_KEY=${
-      stagehandConfig?.browserbaseApiKey ?? process.env.BROWSERBASE_API_KEY
-    }\n`;
+    envContent += `BROWSERBASE_API_KEY=${stagehandConfig?.browserbaseApiKey ?? process.env.BROWSERBASE_API_KEY
+      }\n`;
   }
 
   if (stagehandConfig?.anthropicApiKey || process.env.ANTHROPIC_API_KEY) {
-    envContent += `ANTHROPIC_API_KEY=${
-      stagehandConfig?.anthropicApiKey ?? process.env.ANTHROPIC_API_KEY
-    }\n`;
+    envContent += `ANTHROPIC_API_KEY=${stagehandConfig?.anthropicApiKey ?? process.env.ANTHROPIC_API_KEY
+      }\n`;
   }
 
   if (stagehandConfig?.openaiApiKey || process.env.OPENAI_API_KEY) {
-    envContent += `OPENAI_API_KEY=${
-      stagehandConfig?.openaiApiKey ?? process.env.OPENAI_API_KEY
-    }\n`;
+    envContent += `OPENAI_API_KEY=${stagehandConfig?.openaiApiKey ?? process.env.OPENAI_API_KEY
+      }\n`;
   }
 
   if (envContent) {
@@ -115,7 +111,7 @@ async function cloneExample(
     // Clone the repository
     console.log(
       chalk.cyan(`Cloning template from the Browserbase Playbook:`) +
-        ` ${REPO_URL} (branch: ${REPO_BRANCH})`
+      ` ${REPO_URL} (branch: ${REPO_BRANCH})`
     );
     execSync(`git clone --depth 1 -b ${REPO_BRANCH} ${REPO_URL} ${TEMP_DIR}`, {
       stdio: "ignore",
@@ -149,8 +145,7 @@ async function cloneExample(
       const validExamples = Object.keys(projectConfig);
       fs.rmSync(projectDir, { recursive: true, force: true });
       throw new Error(
-        `Invalid example '${
-          stagehandConfig.example
+        `Invalid example '${stagehandConfig.example
         }'. Please choose from: ${validExamples.join(", ")}`
       );
     }
@@ -240,28 +235,24 @@ async function cloneExample(
       stagehandConfig?.browserbaseProjectId ||
       process.env.BROWSERBASE_PROJECT_ID
     ) {
-      envContent += `BROWSERBASE_PROJECT_ID=${
-        stagehandConfig?.browserbaseProjectId ??
+      envContent += `BROWSERBASE_PROJECT_ID=${stagehandConfig?.browserbaseProjectId ??
         process.env.BROWSERBASE_PROJECT_ID
-      }\n`;
+        }\n`;
     }
 
     if (stagehandConfig?.browserbaseApiKey || process.env.BROWSERBASE_API_KEY) {
-      envContent += `BROWSERBASE_API_KEY=${
-        stagehandConfig?.browserbaseApiKey ?? process.env.BROWSERBASE_API_KEY
-      }\n`;
+      envContent += `BROWSERBASE_API_KEY=${stagehandConfig?.browserbaseApiKey ?? process.env.BROWSERBASE_API_KEY
+        }\n`;
     }
 
     if (stagehandConfig?.anthropicApiKey || process.env.ANTHROPIC_API_KEY) {
-      envContent += `ANTHROPIC_API_KEY=${
-        stagehandConfig?.anthropicApiKey ?? process.env.ANTHROPIC_API_KEY
-      }\n`;
+      envContent += `ANTHROPIC_API_KEY=${stagehandConfig?.anthropicApiKey ?? process.env.ANTHROPIC_API_KEY
+        }\n`;
     }
 
     if (stagehandConfig?.openaiApiKey || process.env.OPENAI_API_KEY) {
-      envContent += `OPENAI_API_KEY=${
-        stagehandConfig?.openaiApiKey ?? process.env.OPENAI_API_KEY
-      }\n`;
+      envContent += `OPENAI_API_KEY=${stagehandConfig?.openaiApiKey ?? process.env.OPENAI_API_KEY
+        }\n`;
     }
 
     console.log(
@@ -282,23 +273,25 @@ async function cloneExample(
     console.log(
       boxen(
         chalk.yellow("\nLights, camera, act()!") +
-          "\n\nEdit and run your Stagehand app:\n" +
-          chalk.cyan(`  cd ${stagehandConfig?.projectName}\n`) +
-          chalk.cyan(`  npm install\n`) +
-          chalk.cyan("  npm start") +
-          "\n\n" +
-          `View and edit the code in ${chalk.cyan(
-            `${stagehandConfig?.projectName}/${
-              stagehandConfig?.example === "quickstart" ||
-              stagehandConfig?.example === "blank"
-                ? "main.ts"
-                : "index.ts"
-            }`
-          )}.` +
-          "\n\n" +
-          chalk.yellow(
-            "Check out our docs for more information: https://docs.stagehand.dev"
-          ),
+        "\n\nEdit and run your Stagehand app:\n" +
+        chalk.cyan(`  cd ${stagehandConfig?.projectName}\n`) +
+        chalk.cyan(`  npm install\n`) +
+        chalk.cyan("  npm start") +
+        "\n\n" +
+        `View and edit the code in ${chalk.cyan(
+          `${stagehandConfig?.projectName}/${stagehandConfig?.example === "quickstart" ||
+            stagehandConfig?.example === "blank" ||
+            stagehandConfig?.example.includes("custom-client")
+            ? "main.ts"
+            : "index.ts"
+          }`
+        )}.` +
+        "\n" +
+        `Edit Stagehand config in ${chalk.yellow("stagehand.config.ts")}.` +
+        "\n\n" +
+        chalk.yellow(
+          "Check out our docs for more information: https://docs.stagehand.dev"
+        ),
         {
           padding: 1,
           margin: 1,
@@ -352,12 +345,15 @@ async function getStagehandConfig(
       name: "modelName",
       message: "Select AI model (API key required)",
       choices: [
-        { name: "OpenAI GPT-4o", value: "gpt-4o" },
         {
           name: "Anthropic Claude 3.5 Sonnet",
           value: "claude-3-5-sonnet-20241022",
         },
-        { name: "Configure my own model", value: "other" },
+        { name: "OpenAI GPT-4o", value: "gpt-4o" },
+        { name: "OpenAI GPT-4o mini", value: "gpt-4o-mini" },
+        { name: "OpenAI o3-mini", value: "o3-mini" },
+        { name: "Other: Vercel AI SDK", value: "aisdk" },
+        { name: "Other: Ollama", value: "ollama" },
       ],
       default: "gpt-4o",
       when: () => !example.includes("custom-client"),
@@ -390,8 +386,7 @@ async function getStagehandConfig(
     {
       type: "list",
       name: "env",
-      message:
-       "Run locally or on Browserbase?",
+      message: "Run locally or on Browserbase?",
       choices: [
         {
           name: "Local",
@@ -432,10 +427,25 @@ async function getStagehandConfig(
     },
   ]);
 
+  let exampleName = example;
+  if (answers.useQuickstart) {
+    exampleName = "quickstart";
+  }
+  if (answers.modelName === "aisdk") {
+    exampleName = answers.useQuickstart
+      ? "custom-client-aisdk"
+      : "custom-client-aisdk-blank";
+  }
+  if (answers.modelName === "ollama") {
+    exampleName = answers.useQuickstart
+      ? "custom-client-ollama"
+      : "custom-client-ollama-blank";
+  }
+
   // Merge saved environment variables with new answers
   return {
     ...answers,
-    example: answers.useQuickstart ? "quickstart" : example,
+    example: exampleName,
     projectName: projectName ?? answers.projectName,
     browserbaseProjectId:
       answers.browserbaseProjectId ?? savedEnv.browserbaseProjectId,
