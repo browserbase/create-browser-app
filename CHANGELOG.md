@@ -1,5 +1,11 @@
 # create-browser-app
 
+## 1.5.0
+
+### Minor Changes
+
+- new features
+
 ## 1.4.0
 
 ### Minor Changes

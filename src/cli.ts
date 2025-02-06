@@ -12,7 +12,7 @@ import { generateConfig } from "./generateStagehandConfig";
 import { getLatestNpmVersion } from "./utils/npm";
 
 const REPO_URL = "https://github.com/browserbase/playbook";
-const REPO_BRANCH = "anirudh/v1.11";
+const REPO_BRANCH = "main";
 const TEMP_DIR = path.join(
   os.tmpdir(),
   "browserbase-clone-" + Math.random().toString(36).substr(2, 9)
@@ -28,24 +28,28 @@ function saveEnvVariables(stagehandConfig: StagehandConfig) {
     stagehandConfig?.browserbaseProjectId ||
     process.env.BROWSERBASE_PROJECT_ID
   ) {
-    envContent += `BROWSERBASE_PROJECT_ID=${stagehandConfig?.browserbaseProjectId ??
+    envContent += `BROWSERBASE_PROJECT_ID=${
+      stagehandConfig?.browserbaseProjectId ??
       process.env.BROWSERBASE_PROJECT_ID
-      }\n`;
+    }\n`;
   }
 
   if (stagehandConfig?.browserbaseApiKey || process.env.BROWSERBASE_API_KEY) {
-    envContent += `BROWSERBASE_API_KEY=${stagehandConfig?.browserbaseApiKey ?? process.env.BROWSERBASE_API_KEY
-      }\n`;
+    envContent += `BROWSERBASE_API_KEY=${
+      stagehandConfig?.browserbaseApiKey ?? process.env.BROWSERBASE_API_KEY
+    }\n`;
   }
 
   if (stagehandConfig?.anthropicApiKey || process.env.ANTHROPIC_API_KEY) {
-    envContent += `ANTHROPIC_API_KEY=${stagehandConfig?.anthropicApiKey ?? process.env.ANTHROPIC_API_KEY
-      }\n`;
+    envContent += `ANTHROPIC_API_KEY=${
+      stagehandConfig?.anthropicApiKey ?? process.env.ANTHROPIC_API_KEY
+    }\n`;
   }
 
   if (stagehandConfig?.openaiApiKey || process.env.OPENAI_API_KEY) {
-    envContent += `OPENAI_API_KEY=${stagehandConfig?.openaiApiKey ?? process.env.OPENAI_API_KEY
-      }\n`;
+    envContent += `OPENAI_API_KEY=${
+      stagehandConfig?.openaiApiKey ?? process.env.OPENAI_API_KEY
+    }\n`;
   }
 
   if (envContent) {
@@ -111,7 +115,7 @@ async function cloneExample(
     // Clone the repository
     console.log(
       chalk.cyan(`Cloning template from the Browserbase Playbook:`) +
-      ` ${REPO_URL} (branch: ${REPO_BRANCH})`
+        ` ${REPO_URL} (branch: ${REPO_BRANCH})`
     );
     execSync(`git clone --depth 1 -b ${REPO_BRANCH} ${REPO_URL} ${TEMP_DIR}`, {
       stdio: "ignore",
@@ -145,7 +149,8 @@ async function cloneExample(
       const validExamples = Object.keys(projectConfig);
       fs.rmSync(projectDir, { recursive: true, force: true });
       throw new Error(
-        `Invalid example '${stagehandConfig.example
+        `Invalid example '${
+          stagehandConfig.example
         }'. Please choose from: ${validExamples.join(", ")}`
       );
     }
@@ -235,24 +240,28 @@ async function cloneExample(
       stagehandConfig?.browserbaseProjectId ||
       process.env.BROWSERBASE_PROJECT_ID
     ) {
-      envContent += `BROWSERBASE_PROJECT_ID=${stagehandConfig?.browserbaseProjectId ??
+      envContent += `BROWSERBASE_PROJECT_ID=${
+        stagehandConfig?.browserbaseProjectId ??
         process.env.BROWSERBASE_PROJECT_ID
-        }\n`;
+      }\n`;
     }
 
     if (stagehandConfig?.browserbaseApiKey || process.env.BROWSERBASE_API_KEY) {
-      envContent += `BROWSERBASE_API_KEY=${stagehandConfig?.browserbaseApiKey ?? process.env.BROWSERBASE_API_KEY
-        }\n`;
+      envContent += `BROWSERBASE_API_KEY=${
+        stagehandConfig?.browserbaseApiKey ?? process.env.BROWSERBASE_API_KEY
+      }\n`;
     }
 
     if (stagehandConfig?.anthropicApiKey || process.env.ANTHROPIC_API_KEY) {
-      envContent += `ANTHROPIC_API_KEY=${stagehandConfig?.anthropicApiKey ?? process.env.ANTHROPIC_API_KEY
-        }\n`;
+      envContent += `ANTHROPIC_API_KEY=${
+        stagehandConfig?.anthropicApiKey ?? process.env.ANTHROPIC_API_KEY
+      }\n`;
     }
 
     if (stagehandConfig?.openaiApiKey || process.env.OPENAI_API_KEY) {
-      envContent += `OPENAI_API_KEY=${stagehandConfig?.openaiApiKey ?? process.env.OPENAI_API_KEY
-        }\n`;
+      envContent += `OPENAI_API_KEY=${
+        stagehandConfig?.openaiApiKey ?? process.env.OPENAI_API_KEY
+      }\n`;
     }
 
     console.log(
@@ -273,25 +282,26 @@ async function cloneExample(
     console.log(
       boxen(
         chalk.yellow("\nLights, camera, act()!") +
-        "\n\nEdit and run your Stagehand app:\n" +
-        chalk.cyan(`  cd ${stagehandConfig?.projectName}\n`) +
-        chalk.cyan(`  npm install\n`) +
-        chalk.cyan("  npm start") +
-        "\n\n" +
-        `View and edit the code in ${chalk.cyan(
-          `${stagehandConfig?.projectName}/${stagehandConfig?.example === "quickstart" ||
-            stagehandConfig?.example === "blank" ||
-            stagehandConfig?.example.includes("custom-client")
-            ? "main.ts"
-            : "index.ts"
-          }`
-        )}.` +
-        "\n" +
-        `Edit Stagehand config in ${chalk.yellow("stagehand.config.ts")}.` +
-        "\n\n" +
-        chalk.yellow(
-          "Check out our docs for more information: https://docs.stagehand.dev"
-        ),
+          "\n\nEdit and run your Stagehand app:\n" +
+          chalk.cyan(`  cd ${stagehandConfig?.projectName}\n`) +
+          chalk.cyan(`  npm install\n`) +
+          chalk.cyan("  npm start") +
+          "\n\n" +
+          `View and edit the code in ${chalk.cyan(
+            `${stagehandConfig?.projectName}/${
+              stagehandConfig?.example === "quickstart" ||
+              stagehandConfig?.example === "blank" ||
+              stagehandConfig?.example.includes("custom-client")
+                ? "main.ts"
+                : "index.ts"
+            }`
+          )}.` +
+          "\n" +
+          `Edit Stagehand config in ${chalk.yellow("stagehand.config.ts")}.` +
+          "\n\n" +
+          chalk.yellow(
+            "Check out our docs for more information: https://docs.stagehand.dev"
+          ),
         {
           padding: 1,
           margin: 1,
