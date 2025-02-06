@@ -12,7 +12,7 @@ import { generateConfig } from "./generateStagehandConfig";
 import { getLatestNpmVersion } from "./utils/npm";
 
 const REPO_URL = "https://github.com/browserbase/playbook";
-const REPO_BRANCH = "main";
+const REPO_BRANCH = "anirudh/v1.11";
 const TEMP_DIR = path.join(
   os.tmpdir(),
   "browserbase-clone-" + Math.random().toString(36).substr(2, 9)
@@ -223,6 +223,9 @@ async function cloneExample(
         packageJson.dependencies["ai"] = await getLatestNpmVersion("ai");
         packageJson.dependencies["@ai-sdk/openai"] = await getLatestNpmVersion(
           "@ai-sdk/openai"
+        );
+        packageJson.dependencies["openai"] = await getLatestNpmVersion(
+          "openai"
         );
       }
       fs.writeJsonSync(packageJsonPath, packageJson, { spaces: 2 });
