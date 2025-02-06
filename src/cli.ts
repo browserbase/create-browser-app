@@ -388,7 +388,7 @@ async function getStagehandConfig(
       type: "list",
       name: "env",
       message:
-        "Run locally or on Browserbase (10 free sessions)?",
+       "Run locally or on Browserbase?",
       choices: [
         {
           name: "Local",
@@ -423,7 +423,7 @@ async function getStagehandConfig(
     {
       type: "confirm",
       name: "headless",
-      message: "Run browser in headless mode (No UI)? ",
+      message: "Run browser in headless mode (hide Chromium popup)? ",
       default: false,
       when: (answers) => answers.env === "LOCAL",
     },
