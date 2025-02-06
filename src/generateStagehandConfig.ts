@@ -3,6 +3,15 @@ import type { ConstructorParams, LogLine } from "@browserbasehq/stagehand";
 export function generateConfig(config: ConstructorParams): string {
   return `import type { ConstructorParams, LogLine } from "@browserbasehq/stagehand";
 import dotenv from "dotenv";
+${
+  config.modelName?.includes("aisdk") &&
+  `import { AISdkClient } from "./aisdk_client.js";
+import { openai } from "@ai-sdk/openai";`
+}
+${
+  config.modelName?.includes("ollama") &&
+  `import { OllamaClient } from "./ollama_client.js";`
+}
 
 dotenv.config();
 
@@ -22,17 +31,46 @@ const StagehandConfig: ConstructorParams = {
   browserbaseSessionID:
     undefined /* Session ID for resuming Browserbase sessions */,
   ${
-    config.modelName?.includes("claude") || config.modelName?.includes("gpt")
+    config.modelName?.includes("gpt") ||
+    config.modelName?.includes("claude") ||
+    config.modelName?.includes("o3")
       ? `modelName: ${JSON.stringify(
           config.modelName
-        )} /* Name of the model to use */,
-	modelClientOptions: {
+        )} /* Name of the model to use */,`
+      : ""
+  }
+  ${
+    config.modelName?.includes("claude") ||
+    config.modelName?.includes("gpt") ||
+    config.modelName?.includes("o3")
+      ? `modelClientOptions: {
     apiKey: ${
       config.modelName?.includes("claude")
         ? "process.env.ANTHROPIC_API_KEY"
         : "process.env.OPENAI_API_KEY"
     },
-  } /* Configuration options for the model client */,`
+  } /* Configuration options for the model client */,
+   ${
+     config.modelName?.includes("ollama")
+       ? `/**
+     * Configure the Ollama client here
+     */
+    llmClient: new OllamaClient({
+      modelName: "llama3.2",
+  	}),`
+       : ""
+   }
+	${
+    config.modelName?.includes("aisdk")
+      ? `/**
+     * Configure the Vercel AI SDK client here
+     */
+    llmClient: new AISdkClient({
+      model: openai("gpt-4o"),
+  	})`
+      : ""
+  }
+   `
       : ""
   }
 };
