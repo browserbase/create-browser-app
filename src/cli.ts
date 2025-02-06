@@ -347,7 +347,7 @@ async function getStagehandConfig(
     {
       type: "list",
       name: "modelName",
-      message: "Select AI model to use",
+      message: "Select AI model (API key required)",
       choices: [
         { name: "OpenAI GPT-4o", value: "gpt-4o" },
         {
@@ -359,6 +359,7 @@ async function getStagehandConfig(
       default: "gpt-4o",
       when: () => !example.includes("custom-client"),
     },
+
     {
       type: "password",
       name: "anthropicApiKey",
@@ -387,7 +388,7 @@ async function getStagehandConfig(
       type: "list",
       name: "env",
       message:
-        "Would you like to run locally or on Browserbase (10 free sessions)?",
+        "Run locally or on Browserbase (10 free sessions)?",
       choices: [
         {
           name: "Local",
@@ -421,22 +422,10 @@ async function getStagehandConfig(
     },
     {
       type: "confirm",
-      name: "debugDom",
-      message: "Enable DOM debugging features?",
-      default: true,
-    },
-    {
-      type: "confirm",
       name: "headless",
-      message: "Run browser in headless mode?",
+      message: "Run browser in headless mode (No UI)? ",
       default: false,
       when: (answers) => answers.env === "LOCAL",
-    },
-    {
-      type: "confirm",
-      name: "enableCaching",
-      message: "Enable local prompt caching?",
-      default: false,
     },
   ]);
 
