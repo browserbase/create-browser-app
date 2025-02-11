@@ -1,5 +1,11 @@
 # create-browser-app
 
+## 1.5.1
+
+### Patch Changes
+
+- fix aisdk not showing up in llmclient
+
 ## 1.5.0
 
 ### Minor Changes

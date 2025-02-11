@@ -36,41 +36,34 @@ const StagehandConfig: ConstructorParams = {
     config.modelName?.includes("o3")
       ? `modelName: ${JSON.stringify(
           config.modelName
-        )} /* Name of the model to use */,`
+        )} /* Name of the model to use */,
+      modelClientOptions: {
+        apiKey: ${
+          config.modelName?.includes("claude")
+            ? "process.env.ANTHROPIC_API_KEY"
+            : "process.env.OPENAI_API_KEY"
+        },
+      } /* Configuration options for the model client */,`
       : ""
   }
   ${
-    config.modelName?.includes("claude") ||
-    config.modelName?.includes("gpt") ||
-    config.modelName?.includes("o3")
-      ? `modelClientOptions: {
-    apiKey: ${
-      config.modelName?.includes("claude")
-        ? "process.env.ANTHROPIC_API_KEY"
-        : "process.env.OPENAI_API_KEY"
-    },
-  } /* Configuration options for the model client */,
-   ${
-     config.modelName?.includes("ollama")
-       ? `/**
+    config.modelName?.includes("ollama")
+      ? `/**
      * Configure the Ollama client here
      */
     llmClient: new OllamaClient({
       modelName: "llama3.2",
-  	}),`
-       : ""
-   }
-	${
+    }),`
+      : ""
+  }
+  ${
     config.modelName?.includes("aisdk")
       ? `/**
      * Configure the Vercel AI SDK client here
      */
     llmClient: new AISdkClient({
       model: openai("gpt-4o"),
-  	})`
-      : ""
-  }
-   `
+    }),`
       : ""
   }
 };
