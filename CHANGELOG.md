@@ -1,5 +1,11 @@
 # create-browser-app
 
+## 1.5.2
+
+### Patch Changes
+
+- save to bb9
+
 ## 1.5.1
 
 ### Patch Changes

@@ -17,8 +17,8 @@ const TEMP_DIR = path.join(
   os.tmpdir(),
   "browserbase-clone-" + Math.random().toString(36).substr(2, 9)
 );
-const STAGEHAND_ENV_DIR = path.join(os.tmpdir(), "stagehand");
-const STAGEHAND_ENV_FILE = path.join(STAGEHAND_ENV_DIR, ".env");
+const BB9_DIR = path.join(os.homedir(), ".bb9");
+const STAGEHAND_ENV_FILE = path.join(BB9_DIR, "env");
 
 // Function to save environment variables to temp directory
 function saveEnvVariables(stagehandConfig: StagehandConfig) {
@@ -53,8 +53,8 @@ function saveEnvVariables(stagehandConfig: StagehandConfig) {
   }
 
   if (envContent) {
-    fs.mkdirSync(STAGEHAND_ENV_DIR, { recursive: true });
-    fs.writeFileSync(STAGEHAND_ENV_FILE, envContent);
+    fs.mkdirSync(BB9_DIR, { recursive: true, mode: 0o700 });
+    fs.writeFileSync(STAGEHAND_ENV_FILE, envContent, { mode: 0o600 });
   }
 }
 
