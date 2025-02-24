@@ -380,13 +380,17 @@ async function getStagehandConfig(
           name: "Anthropic Claude 3.5 Sonnet",
           value: "claude-3-5-sonnet-20241022",
         },
+        {
+          name: "Anthropic Claude 3.7 Sonnet",
+          value: "claude-3-7-sonnet-20250219",
+        },
         { name: "OpenAI GPT-4o", value: "gpt-4o" },
         { name: "OpenAI GPT-4o mini", value: "gpt-4o-mini" },
         { name: "OpenAI o3-mini", value: "o3-mini" },
         { name: "Other: Vercel AI SDK", value: "aisdk" },
         { name: "Other: Ollama", value: "ollama" },
       ],
-      default: "gpt-4o",
+      default: "claude-3-7-sonnet-20250219",
       when: () => !example.includes("custom-client"),
     },
 
