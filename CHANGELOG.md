@@ -1,5 +1,11 @@
 # create-browser-app
 
+## 1.6.0
+
+### Minor Changes
+
+- Support 3.7 sonnet
+
 ## 1.5.3
 
 ### Patch Changes
