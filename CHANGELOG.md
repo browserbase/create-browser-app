@@ -1,5 +1,11 @@
 # create-browser-app
 
+## 1.5.3
+
+### Patch Changes
+
+- example can now pull from home directory
+
 ## 1.5.2
 
 ### Patch Changes

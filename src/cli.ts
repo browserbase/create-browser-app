@@ -99,9 +99,18 @@ type StagehandConfig = ConstructorParams & {
   useQuickstart: boolean;
 };
 
+async function checkForLocalExample(example: string): Promise<string | null> {
+  const localExamplePath = path.join(BB9_DIR, `${example}.ts`);
+  if (fs.existsSync(localExamplePath)) {
+    return fs.readFileSync(localExamplePath, "utf-8");
+  }
+  return null;
+}
+
 async function cloneExample(
   stagehandConfig: StagehandConfig,
-  useAlpha: boolean = false
+  useAlpha: boolean = false,
+  localExampleContent?: string
 ) {
   console.log(chalk.blue("Creating new browser app..."));
 
@@ -130,6 +139,12 @@ async function cloneExample(
       throw new Error(
         `Directory ${stagehandConfig?.projectName} already exists`
       );
+    }
+
+    // If we have local example content, use blank template and replace main.ts
+    if (localExampleContent) {
+      console.log(chalk.cyan(`Using local example from ${BB9_DIR}`));
+      stagehandConfig.example = "blank";
     }
 
     // Copy example to new project directory
@@ -278,6 +293,12 @@ async function cloneExample(
       path.join(projectDir, "stagehand.config.ts"),
       generateConfig(stagehandConfig)
     );
+
+    // If we have local example content, replace main.ts
+    if (localExampleContent) {
+      const mainTsPath = path.join(projectDir, "main.ts");
+      fs.writeFileSync(mainTsPath, localExampleContent);
+    }
 
     console.log(
       boxen(
@@ -479,12 +500,21 @@ program
       projectName?: string,
       args?: { example?: string; alpha?: boolean }
     ) => {
+      // Check for local example first
+      const localExampleContent = await checkForLocalExample(
+        args?.example ?? DEFAULT_EXAMPLE
+      );
+
       const stagehandConfig = await getStagehandConfig(
         args?.example ?? DEFAULT_EXAMPLE,
         projectName
       );
 
-      await cloneExample(stagehandConfig, args?.alpha ?? false);
+      await cloneExample(
+        stagehandConfig,
+        args?.alpha ?? false,
+        localExampleContent ?? undefined
+      );
     }
   );
 
