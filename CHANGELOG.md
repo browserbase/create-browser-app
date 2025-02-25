@@ -1,5 +1,11 @@
 # create-browser-app
 
+## 1.7.0
+
+### Minor Changes
+
+- add one free hour to browserbase
+
 ## 1.6.0
 
 ### Minor Changes

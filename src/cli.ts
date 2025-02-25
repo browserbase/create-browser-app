@@ -421,7 +421,7 @@ async function getStagehandConfig(
     {
       type: "list",
       name: "env",
-      message: "Run locally or on Browserbase?",
+      message: "Run locally or on Browserbase (1 free hour)?",
       choices: [
         {
           name: "Local",
