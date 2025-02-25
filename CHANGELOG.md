@@ -1,5 +1,11 @@
 # create-browser-app
 
+## 1.8.0
+
+### Minor Changes
+
+- 60 minutes free
+
 ## 1.7.0
 
 ### Minor Changes
