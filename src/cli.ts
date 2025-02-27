@@ -97,6 +97,7 @@ type StagehandConfig = ConstructorParams & {
   openaiApiKey?: string;
   example: string;
   useQuickstart: boolean;
+  rules: "CURSOR" | "WINDSURF";
 };
 
 async function checkForLocalExample(example: string): Promise<string | null> {
@@ -149,6 +150,15 @@ async function cloneExample(
 
     // Copy example to new project directory
     fs.copySync(TEMP_DIR, projectDir);
+
+    // Rename .cursorrules to .windsurfrules if Windsurf was selected
+    if (stagehandConfig.rules === "WINDSURF") {
+      const rulesPath = path.join(projectDir, ".cursorrules");
+      const newRulesPath = path.join(projectDir, ".windsurfrules");
+      if (fs.existsSync(rulesPath)) {
+        fs.renameSync(rulesPath, newRulesPath);
+      }
+    }
 
     // Read project config
     const configPath = path.join(projectDir, "config.json");
@@ -393,7 +403,6 @@ async function getStagehandConfig(
       default: "claude-3-7-sonnet-20250219",
       when: () => !example.includes("custom-client"),
     },
-
     {
       type: "password",
       name: "anthropicApiKey",
@@ -417,6 +426,22 @@ async function getStagehandConfig(
         answers.modelName.includes("gpt") &&
         !process.env.OPENAI_API_KEY &&
         !savedEnv.openaiApiKey,
+    },
+    {
+      type: "list",
+      name: "rules",
+      message: "Are you using Cursor or Windsurf?",
+      choices: [
+        {
+          name: "Cursor",
+          value: "CURSOR",
+        },
+        {
+          name: "Windsurf",
+          value: "WINDSURF",
+        },
+      ],
+      default: "CURSOR",
     },
     {
       type: "list",
