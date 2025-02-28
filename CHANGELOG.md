@@ -1,5 +1,11 @@
 # create-browser-app
 
+## 1.9.0
+
+### Minor Changes
+
+- cd2e2d1: add windsurf rules
+
 ## 1.8.0
 
 ### Minor Changes
