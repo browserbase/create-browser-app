@@ -97,7 +97,7 @@ type StagehandConfig = ConstructorParams & {
   openaiApiKey?: string;
   example: string;
   useQuickstart: boolean;
-  rules: "CURSOR" | "WINDSURF";
+  rules: "CURSOR" | "WINDSURF" | "NONE";
 };
 
 async function checkForLocalExample(example: string): Promise<string | null> {
@@ -151,14 +151,20 @@ async function cloneExample(
     // Copy example to new project directory
     fs.copySync(TEMP_DIR, projectDir);
 
-    // Rename .cursorrules to .windsurfrules if Windsurf was selected
+    // Handle rules file based on selection
     if (stagehandConfig.rules === "WINDSURF") {
       const rulesPath = path.join(projectDir, ".cursorrules");
       const newRulesPath = path.join(projectDir, ".windsurfrules");
       if (fs.existsSync(rulesPath)) {
         fs.renameSync(rulesPath, newRulesPath);
       }
+    } else if (stagehandConfig.rules === "NONE") {
+      const rulesPath = path.join(projectDir, ".cursorrules");
+      if (fs.existsSync(rulesPath)) {
+        fs.unlinkSync(rulesPath);
+      }
     }
+    // If CURSOR is selected, leave .cursorrules as is
 
     // Read project config
     const configPath = path.join(projectDir, "config.json");
@@ -439,6 +445,10 @@ async function getStagehandConfig(
         {
           name: "Windsurf",
           value: "WINDSURF",
+        },
+        {
+          name: "None",
+          value: "NONE",
         },
       ],
       default: "CURSOR",
