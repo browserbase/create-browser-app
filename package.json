@@ -1,6 +1,6 @@
 {
   "name": "create-browser-app",
-  "version": "1.9.0",
+  "version": "1.9.3",
   "description": "",
   "bin": {
     "create-browser-app": "./dist/cli.js"
@@ -11,7 +11,7 @@
     "examples"
   ],
   "scripts": {
-    "build": "tsup src/cli.ts --format esm --dts --clean",
+    "build": "tsup src/cli.ts --format esm --dts --clean && cp -r scaffold dist/scaffold-js",
     "dev": "tsup src/cli.ts --format esm --dts --watch",
     "lint": "eslint src/**/*.ts",
     "prepublishOnly": "npm run build",
