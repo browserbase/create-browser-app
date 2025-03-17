@@ -1,22 +1,10 @@
 # create-browser-app
 
-## 1.9.3
+## 1.10.0
 
-### Patch Changes
+### Minor Changes
 
-- remove console log
-
-## 1.9.2
-
-### Patch Changes
-
-- forgot to build
-
-## 1.9.1
-
-### Patch Changes
-
-- use local scaffold instead of playbook
+- revert
 
 ## 1.9.0
 
