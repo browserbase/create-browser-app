@@ -11,7 +11,7 @@ import { ConstructorParams } from "@browserbasehq/stagehand";
 import { generateConfig } from "./generateStagehandConfig";
 import { getLatestNpmVersion } from "./utils/npm";
 
-const REPO_URL = "https://github.com/browserbase/playbook";
+const REPO_URL = "https://github.com/browserbase/stagehand-scaffold";
 const REPO_BRANCH = "main";
 const TEMP_DIR = path.join(
   os.tmpdir(),
@@ -124,7 +124,7 @@ async function cloneExample(
 
     // Clone the repository
     console.log(
-      chalk.cyan(`Cloning template from the Browserbase Playbook:`) +
+      chalk.cyan(`Cloning template from the Browserbase Stagehand Scaffold:`) +
         ` ${REPO_URL} (branch: ${REPO_BRANCH})`
     );
     execSync(`git clone --depth 1 -b ${REPO_BRANCH} ${REPO_URL} ${TEMP_DIR}`, {
