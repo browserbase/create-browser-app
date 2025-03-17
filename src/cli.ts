@@ -10,16 +10,9 @@ import inquirer from "inquirer";
 import { ConstructorParams } from "@browserbasehq/stagehand";
 import { generateConfig } from "./generateStagehandConfig";
 import { getLatestNpmVersion } from "./utils/npm";
-import { fileURLToPath } from "url";
 
-// Use local scaffold directory instead of cloning from GitHub
-// Get the directory where this script is located
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Resolve path to scaffold directory from the distribution location
-const SCAFFOLD_DIR = path.resolve(path.dirname(__dirname), "scaffold");
-
+const REPO_URL = "https://github.com/browserbase/playbook";
+const REPO_BRANCH = "main";
 const TEMP_DIR = path.join(
   os.tmpdir(),
   "browserbase-clone-" + Math.random().toString(36).substr(2, 9)
@@ -126,15 +119,17 @@ async function cloneExample(
     // Save environment variables to temp directory
     saveEnvVariables(stagehandConfig);
 
-    // Create temporary directory
+    // Create temporary directory for cloning
     fs.mkdirSync(TEMP_DIR, { recursive: true });
 
-    // Copy from scaffold directory instead of cloning
+    // Clone the repository
     console.log(
-      chalk.cyan(`Copying template from local scaffold directory:`) +
-        ` ${SCAFFOLD_DIR}`
+      chalk.cyan(`Cloning template from the Browserbase Playbook:`) +
+        ` ${REPO_URL} (branch: ${REPO_BRANCH})`
     );
-    fs.copySync(SCAFFOLD_DIR, TEMP_DIR);
+    execSync(`git clone --depth 1 -b ${REPO_BRANCH} ${REPO_URL} ${TEMP_DIR}`, {
+      stdio: "ignore",
+    });
 
     // Create project directory
     const projectDir = path.resolve(
@@ -533,7 +528,9 @@ async function getStagehandConfig(
 const DEFAULT_EXAMPLE = "blank";
 program
   .name("create-browser-app")
-  .description("Create a scaffolded browser application using Stagehand")
+  .description(
+    "Create a new browser application from browserbase/playbook examples"
+  )
   .argument("[project-name]", "Name of the project")
   .option("-e, --example <example>", "Example to use", DEFAULT_EXAMPLE)
   .option("--alpha", "Use alpha version of @browserbasehq/stagehand")
