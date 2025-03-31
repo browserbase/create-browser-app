@@ -12,7 +12,7 @@ import { generateConfig } from "./generateStagehandConfig";
 import { getLatestNpmVersion } from "./utils/npm";
 
 const REPO_URL = "https://github.com/browserbase/stagehand-scaffold";
-const REPO_BRANCH = "anirudh/update-2.0";
+const REPO_BRANCH = "main";
 const TEMP_DIR = path.join(
   os.tmpdir(),
   "browserbase-clone-" + Math.random().toString(36).substr(2, 9)
