@@ -417,7 +417,7 @@ async function getStagehandConfig(
           value: "custom_openai",
         },
       ],
-      default: "claude-3-7-sonnet-20250219",
+      default: "gpt-4o-mini",
       when: () => !example.includes("custom-client"),
     },
     {
