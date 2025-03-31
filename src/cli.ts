@@ -12,7 +12,7 @@ import { generateConfig } from "./generateStagehandConfig";
 import { getLatestNpmVersion } from "./utils/npm";
 
 const REPO_URL = "https://github.com/browserbase/stagehand-scaffold";
-const REPO_BRANCH = "main";
+const REPO_BRANCH = "anirudh/update-2.0";
 const TEMP_DIR = path.join(
   os.tmpdir(),
   "browserbase-clone-" + Math.random().toString(36).substr(2, 9)
@@ -98,6 +98,7 @@ type StagehandConfig = ConstructorParams & {
   example: string;
   useQuickstart: boolean;
   rules: "CURSOR" | "WINDSURF" | "NONE";
+  modelName: string;
 };
 
 async function checkForLocalExample(example: string): Promise<string | null> {
@@ -142,7 +143,6 @@ async function cloneExample(
       );
     }
 
-    // If we have local example content, use blank template and replace main.ts
     if (localExampleContent) {
       console.log(chalk.cyan(`Using local example from ${BB9_DIR}`));
       stagehandConfig.example = "blank";
@@ -247,7 +247,7 @@ async function cloneExample(
       packageJson.dependencies["@browserbasehq/sdk"] =
         await getLatestNpmVersion("@browserbasehq/sdk");
 
-      if (stagehandConfig.example === "custom-client-ollama") {
+      if (stagehandConfig.example === "custom-client-openai") {
         packageJson.dependencies.openai = await getLatestNpmVersion("openai");
       }
       if (stagehandConfig.example === "custom-client-aisdk") {
@@ -312,8 +312,19 @@ async function cloneExample(
 
     // If we have local example content, replace main.ts
     if (localExampleContent) {
-      const mainTsPath = path.join(projectDir, "main.ts");
+      const mainTsPath = path.join(projectDir, "index.ts");
       fs.writeFileSync(mainTsPath, localExampleContent);
+    }
+
+    // Run Prettier formatting
+    console.log(chalk.blue("Formatting code with Prettier..."));
+    try {
+      execSync(`npx prettier --write .`, {
+        stdio: "ignore",
+        cwd: projectDir,
+      });
+    } catch (error) {
+      console.warn(chalk.yellow("Warning: Failed to run Prettier formatting"));
     }
 
     console.log(
@@ -325,13 +336,7 @@ async function cloneExample(
           chalk.cyan("  npm start") +
           "\n\n" +
           `View and edit the code in ${chalk.cyan(
-            `${stagehandConfig?.projectName}/${
-              stagehandConfig?.example === "quickstart" ||
-              stagehandConfig?.example === "blank" ||
-              stagehandConfig?.example.includes("custom-client")
-                ? "main.ts"
-                : "index.ts"
-            }`
+            `${stagehandConfig?.projectName}/index.ts`
           )}.` +
           "\n" +
           `Edit Stagehand config in ${chalk.yellow("stagehand.config.ts")}.` +
@@ -403,8 +408,14 @@ async function getStagehandConfig(
         { name: "OpenAI GPT-4o", value: "gpt-4o" },
         { name: "OpenAI GPT-4o mini", value: "gpt-4o-mini" },
         { name: "OpenAI o3-mini", value: "o3-mini" },
-        { name: "Other: Vercel AI SDK", value: "aisdk" },
-        { name: "Other: Ollama", value: "ollama" },
+        {
+          name: "Other: Vercel AI SDK (Azure, Bedrock, Gemini, etc.)",
+          value: "aisdk",
+        },
+        {
+          name: "Other: OpenAI Custom (Ollama, Gemini, etc.)",
+          value: "custom_openai",
+        },
       ],
       default: "claude-3-7-sonnet-20250219",
       when: () => !example.includes("custom-client"),
@@ -488,13 +499,6 @@ async function getStagehandConfig(
         !process.env.BROWSERBASE_API_KEY &&
         !savedEnv.browserbaseApiKey,
     },
-    {
-      type: "confirm",
-      name: "headless",
-      message: "Run browser in headless mode (hide Chromium popup)? ",
-      default: false,
-      when: (answers) => answers.env === "LOCAL",
-    },
   ]);
 
   let exampleName = example;
@@ -506,10 +510,10 @@ async function getStagehandConfig(
       ? "custom-client-aisdk"
       : "custom-client-aisdk-blank";
   }
-  if (answers.modelName === "ollama") {
+  if (answers.modelName === "custom_openai") {
     exampleName = answers.useQuickstart
-      ? "custom-client-ollama"
-      : "custom-client-ollama-blank";
+      ? "custom-client-openai"
+      : "custom-client-openai-blank";
   }
 
   // Merge saved environment variables with new answers

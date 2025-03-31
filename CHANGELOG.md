@@ -1,5 +1,11 @@
 # create-browser-app
 
+## 1.11.0
+
+### Minor Changes
+
+- stagehand 2.0!
+
 ## 1.10.0
 
 ### Minor Changes

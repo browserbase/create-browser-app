@@ -1,6 +1,6 @@
 {
   "name": "create-browser-app",
-  "version": "1.10.0",
+  "version": "1.11.0",
   "description": "",
   "bin": {
     "create-browser-app": "./dist/cli.js"
@@ -24,6 +24,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@browserbasehq/stagehand": "2.0.0-alpha-dc8b6b3bd6a119438801a0fe90afd4a9bcb7f269",
     "boxen": "^8.0.1",
     "chalk": "^5.3.0",
     "commander": "^12.1.0",
@@ -33,7 +34,6 @@
     "inquirer": "^12.2.0"
   },
   "devDependencies": {
-    "@browserbasehq/stagehand": "^1.7.0",
     "@changesets/cli": "^2.27.10",
     "@types/fs-extra": "^11.0.4",
     "@typescript-eslint/eslint-plugin": "^8.18.1",
