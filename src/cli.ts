@@ -400,9 +400,7 @@ async function getStagehandConfig(
         },
         { name: "OpenAI GPT-4o", value: "gpt-4o" },
         { name: "OpenAI GPT-4o mini", value: "gpt-4o-mini" },
-        ...(alpha
-          ? [{ name: "Google Gemini 2.0 Flash", value: "gemini-2.0-flash" }]
-          : []),
+        { name: "Google Gemini 2.0 Flash", value: "gemini-2.0-flash" },
         {
           name: "Other: Vercel AI SDK (Azure, Bedrock, Gemini, etc.)",
           value: "aisdk",
@@ -412,7 +410,7 @@ async function getStagehandConfig(
           value: "custom_openai",
         },
       ],
-      default: "gpt-4o-mini",
+      default: "gemini-2.0-flash",
       when: () => !example.includes("custom-client"),
     },
     {
