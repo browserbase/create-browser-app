@@ -12,16 +12,15 @@ import { generateConfig } from "./generateStagehandConfig";
 import { getLatestNpmVersion } from "./utils/npm";
 
 const REPO_URL = "https://github.com/browserbase/stagehand-scaffold";
-const REPO_BRANCH = "main";
+const REPO_BRANCH = "anirudh/update-config";
 const TEMP_DIR = path.join(
   os.tmpdir(),
   "browserbase-clone-" + Math.random().toString(36).substr(2, 9)
 );
 const BB9_DIR = path.join(os.homedir(), ".bb9");
-const STAGEHAND_ENV_FILE = path.join(BB9_DIR, "env");
+const STAGEHAND_ENV_FILE = path.join(BB9_DIR, ".env");
 
-// Function to save environment variables to temp directory
-function saveEnvVariables(stagehandConfig: StagehandConfig) {
+function getStagehandEnvFile(stagehandConfig: StagehandConfig): string {
   let envContent = "";
 
   if (
@@ -52,6 +51,28 @@ function saveEnvVariables(stagehandConfig: StagehandConfig) {
     }\n`;
   }
 
+  if (
+    stagehandConfig?.googleApiKey ||
+    process.env.GOOGLE_GENERATIVE_AI_API_KEY ||
+    process.env.GOOGLE_API_KEY
+  ) {
+    envContent += `GOOGLE_GENERATIVE_AI_API_KEY=${
+      stagehandConfig?.googleApiKey ??
+      process.env.GOOGLE_GENERATIVE_AI_API_KEY ??
+      process.env.GOOGLE_API_KEY
+    }\n`;
+    envContent += `GOOGLE_API_KEY=${
+      stagehandConfig?.googleApiKey ??
+      process.env.GOOGLE_API_KEY ??
+      process.env.GOOGLE_GENERATIVE_AI_API_KEY
+    }\n`;
+  }
+  return envContent;
+}
+
+// Function to save environment variables to temp directory
+function saveEnvVariables(stagehandConfig: StagehandConfig) {
+  const envContent = getStagehandEnvFile(stagehandConfig);
   if (envContent) {
     fs.mkdirSync(BB9_DIR, { recursive: true, mode: 0o700 });
     fs.writeFileSync(STAGEHAND_ENV_FILE, envContent, { mode: 0o600 });
@@ -83,6 +104,12 @@ function loadEnvVariables(): Partial<StagehandConfig> {
       case "OPENAI_API_KEY":
         config.openaiApiKey = value;
         break;
+      case "GOOGLE_API_KEY":
+        config.googleApiKey = value;
+        break;
+      case "GOOGLE_GENERATIVE_AI_API_KEY":
+        config.googleApiKey = value;
+        break;
     }
   }
 
@@ -95,6 +122,7 @@ type StagehandConfig = ConstructorParams & {
   browserbaseApiKey?: string;
   anthropicApiKey?: string;
   openaiApiKey?: string;
+  googleApiKey?: string;
   example: string;
   useQuickstart: boolean;
   rules: "CURSOR" | "WINDSURF" | "NONE";
@@ -247,53 +275,17 @@ async function cloneExample(
       packageJson.dependencies["@browserbasehq/sdk"] =
         await getLatestNpmVersion("@browserbasehq/sdk");
 
-      if (stagehandConfig.example === "custom-client-openai") {
-        packageJson.dependencies.openai = await getLatestNpmVersion("openai");
-      }
-      if (stagehandConfig.example === "custom-client-aisdk") {
-        packageJson.dependencies["ai"] = await getLatestNpmVersion("ai");
-        packageJson.dependencies["@ai-sdk/openai"] = await getLatestNpmVersion(
-          "@ai-sdk/openai"
-        );
-        packageJson.dependencies["openai"] = await getLatestNpmVersion(
-          "openai"
-        );
-      }
+      // Add dependencies for Vercel AI SDK and OpenAI
+      packageJson.dependencies["ai"] = await getLatestNpmVersion("ai");
+      packageJson.dependencies["@ai-sdk/openai"] = await getLatestNpmVersion(
+        "@ai-sdk/openai"
+      );
+      packageJson.dependencies["openai"] = await getLatestNpmVersion("openai");
       fs.writeJsonSync(packageJsonPath, packageJson, { spaces: 2 });
     }
 
     // Write secrets to .env file
-    // Initialize .env content
-    let envContent = "";
-
-    // Add environment variables if they exist
-    if (
-      stagehandConfig?.browserbaseProjectId ||
-      process.env.BROWSERBASE_PROJECT_ID
-    ) {
-      envContent += `BROWSERBASE_PROJECT_ID=${
-        stagehandConfig?.browserbaseProjectId ??
-        process.env.BROWSERBASE_PROJECT_ID
-      }\n`;
-    }
-
-    if (stagehandConfig?.browserbaseApiKey || process.env.BROWSERBASE_API_KEY) {
-      envContent += `BROWSERBASE_API_KEY=${
-        stagehandConfig?.browserbaseApiKey ?? process.env.BROWSERBASE_API_KEY
-      }\n`;
-    }
-
-    if (stagehandConfig?.anthropicApiKey || process.env.ANTHROPIC_API_KEY) {
-      envContent += `ANTHROPIC_API_KEY=${
-        stagehandConfig?.anthropicApiKey ?? process.env.ANTHROPIC_API_KEY
-      }\n`;
-    }
-
-    if (stagehandConfig?.openaiApiKey || process.env.OPENAI_API_KEY) {
-      envContent += `OPENAI_API_KEY=${
-        stagehandConfig?.openaiApiKey ?? process.env.OPENAI_API_KEY
-      }\n`;
-    }
+    const envContent = getStagehandEnvFile(stagehandConfig);
 
     console.log(
       `Wrote environment variables to ${projectDir}/.env. Existing environment variables were taken from your environment.`
@@ -367,7 +359,8 @@ async function cloneExample(
 
 async function getStagehandConfig(
   example: string,
-  projectName?: string
+  projectName?: string,
+  alpha?: boolean
 ): Promise<StagehandConfig> {
   // Load saved environment variables
   const savedEnv = loadEnvVariables();
@@ -407,7 +400,9 @@ async function getStagehandConfig(
         },
         { name: "OpenAI GPT-4o", value: "gpt-4o" },
         { name: "OpenAI GPT-4o mini", value: "gpt-4o-mini" },
-        { name: "OpenAI o3-mini", value: "o3-mini" },
+        ...(alpha
+          ? [{ name: "Google Gemini 2.0 Flash", value: "gemini-2.0-flash" }]
+          : []),
         {
           name: "Other: Vercel AI SDK (Azure, Bedrock, Gemini, etc.)",
           value: "aisdk",
@@ -422,12 +417,23 @@ async function getStagehandConfig(
     },
     {
       type: "password",
+      name: "googleApiKey",
+      message: `Enter your Google API key (${chalk.blue(
+        "https://aistudio.google.com/apikey"
+      )})`,
+      when: (answers) =>
+        answers.modelName.includes("gemini") &&
+        !process.env.GOOGLE_API_KEY &&
+        !process.env.GOOGLE_GENERATIVE_AI_API_KEY &&
+        !savedEnv.googleApiKey,
+    },
+    {
+      type: "password",
       name: "anthropicApiKey",
       message: `Enter your Anthropic API key (${chalk.blue(
         "https://console.anthropic.com/settings/keys"
       )})`,
       when: (answers) =>
-        answers.modelName &&
         answers.modelName.includes("claude") &&
         !process.env.ANTHROPIC_API_KEY &&
         !savedEnv.anthropicApiKey,
@@ -505,16 +511,6 @@ async function getStagehandConfig(
   if (answers.useQuickstart) {
     exampleName = "quickstart";
   }
-  if (answers.modelName === "aisdk") {
-    exampleName = answers.useQuickstart
-      ? "custom-client-aisdk"
-      : "custom-client-aisdk-blank";
-  }
-  if (answers.modelName === "custom_openai") {
-    exampleName = answers.useQuickstart
-      ? "custom-client-openai"
-      : "custom-client-openai-blank";
-  }
 
   // Merge saved environment variables with new answers
   return {
@@ -550,7 +546,8 @@ program
 
       const stagehandConfig = await getStagehandConfig(
         args?.example ?? DEFAULT_EXAMPLE,
-        projectName
+        projectName,
+        args?.alpha ?? false
       );
 
       await cloneExample(

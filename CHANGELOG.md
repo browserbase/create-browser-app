@@ -1,5 +1,29 @@
 # create-browser-app
 
+## 1.12.1
+
+### Patch Changes
+
+- add google api key
+
+## 1.12.0
+
+### Minor Changes
+
+- add chess example and all llm clients
+
+## 1.11.2
+
+### Patch Changes
+
+- pls
+
+## 1.11.1
+
+### Patch Changes
+
+- remove false in stagehand config
+
 ## 1.11.0
 
 ### Minor Changes

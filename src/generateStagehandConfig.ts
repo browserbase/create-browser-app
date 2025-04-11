@@ -1,17 +1,26 @@
 import type { ConstructorParams, LogLine } from "@browserbasehq/stagehand";
 
 export function generateConfig(config: ConstructorParams): string {
+  let apiKey = "process.env.OPENAI_API_KEY";
+  if (config.modelName?.includes("claude")) {
+    apiKey = "process.env.ANTHROPIC_API_KEY";
+  }
+  if (config.modelName?.includes("gemini")) {
+    apiKey = "process.env.GOOGLE_API_KEY";
+  }
   return `import type { ConstructorParams } from "@browserbasehq/stagehand";
 import dotenv from "dotenv";
 ${
-  config.modelName?.includes("aisdk") &&
-  `import { AISdkClient } from "./aisdk_client.js";
+  config.modelName?.includes("aisdk")
+    ? `import { AISdkClient } from "./llm_clients/aisdk_client.js";
 import { openai } from "@ai-sdk/openai";`
+    : ""
 }
 ${
-  config.modelName?.includes("custom_openai") &&
-  `import { CustomOpenAIClient } from "./customOpenAI_client.js";
+  config.modelName?.includes("custom_openai")
+    ? `import { CustomOpenAIClient } from "./llm_clients/customOpenAI_client.js";
 import { OpenAI } from "openai";`
+    : ""
 }
 
 dotenv.config();
@@ -24,16 +33,13 @@ const StagehandConfig: ConstructorParams = {
   ${
     config.modelName?.includes("gpt") ||
     config.modelName?.includes("claude") ||
-    config.modelName?.includes("o3")
+    config.modelName?.includes("o3") ||
+    config.modelName?.includes("gemini")
       ? `modelName: ${JSON.stringify(
           config.modelName
         )} /* Name of the model to use */,
   modelClientOptions: {
-    apiKey: ${
-      config.modelName?.includes("claude")
-        ? "process.env.ANTHROPIC_API_KEY"
-        : "process.env.OPENAI_API_KEY"
-    },
+    apiKey: ${apiKey},
   } /* Configuration options for the model client */,`
       : ""
   }
