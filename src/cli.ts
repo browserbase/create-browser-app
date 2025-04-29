@@ -271,16 +271,19 @@ async function cloneExample(
 
       packageJson.dependencies["@browserbasehq/stagehand"] = useAlpha
         ? "alpha"
-        : await getLatestNpmVersion("@browserbasehq/stagehand");
-      packageJson.dependencies["@browserbasehq/sdk"] =
-        await getLatestNpmVersion("@browserbasehq/sdk");
+        : `^${await getLatestNpmVersion("@browserbasehq/stagehand")}`;
+      packageJson.dependencies[
+        "@browserbasehq/sdk"
+      ] = `^${await getLatestNpmVersion("@browserbasehq/sdk")}`;
 
       // Add dependencies for Vercel AI SDK and OpenAI
-      packageJson.dependencies["ai"] = await getLatestNpmVersion("ai");
-      packageJson.dependencies["@ai-sdk/openai"] = await getLatestNpmVersion(
+      packageJson.dependencies["ai"] = `^${await getLatestNpmVersion("ai")}`;
+      packageJson.dependencies[
         "@ai-sdk/openai"
-      );
-      packageJson.dependencies["openai"] = await getLatestNpmVersion("openai");
+      ] = `^${await getLatestNpmVersion("@ai-sdk/openai")}`;
+      packageJson.dependencies["openai"] = `^${await getLatestNpmVersion(
+        "openai"
+      )}`;
       fs.writeJsonSync(packageJsonPath, packageJson, { spaces: 2 });
     }
 

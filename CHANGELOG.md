@@ -1,5 +1,11 @@
 # create-browser-app
 
+## 1.12.2
+
+### Patch Changes
+
+- get latest version npm
+
 ## 1.12.1
 
 ### Patch Changes
