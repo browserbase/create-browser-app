@@ -1,9 +1,9 @@
 {
-  "name": "create-browser-app",
+  "name": "metics web",
   "version": "1.10.0",
   "description": "",
   "bin": {
-    "create-browser-app": "./dist/cli.js"
+    "metics web": "./dist/cli.js"
   },
   "files": [
     "dist",
