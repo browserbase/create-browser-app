@@ -8,7 +8,6 @@
   },
   "dependencies": {
     "@browserbasehq/stagehand": "latest",
-    "@playwright/test": "^1.49.1",
     "dotenv": "^16.4.7"
   },
   "devDependencies": {
