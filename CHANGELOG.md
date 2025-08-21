@@ -1,5 +1,11 @@
 # create-browser-app
 
+## 2.0.0
+
+### Major Changes
+
+- ec88050: consolidate create-browser-app to one repo, simplify quickstart code, simplify cli options, and updated cursorrules
+
 ## 1.10.0
 
 ### Minor Changes
