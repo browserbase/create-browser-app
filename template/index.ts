@@ -8,8 +8,8 @@ async function main() {
 
   await stagehand.init();
 
-  console.log(`\n\x1b[36mStagehand Session Started\x1b[0m`);
-  console.log(`Watch live: \x1b[34mhttps://browserbase.com/sessions/${stagehand.browserbaseSessionID}\x1b[0m\n`);
+  console.log(`Stagehand Session Started`);
+  console.log(`Watch live: https://browserbase.com/sessions/${stagehand.browserbaseSessionID}`);
 
   const page = stagehand.page;
 
@@ -18,11 +18,18 @@ async function main() {
   const extractResult = await page.extract("Extract the value proposition from the page.");
   console.log(`Extract result:\n`, extractResult);
 
-  const actResult = await page.act("Click the 'Get Started' button.");
+  const actResult = await page.act("Click the 'Evals' button.");
   console.log(`Act result:\n`, actResult);
 
   const observeResult = await page.observe("What can I click on this page?");
   console.log(`Observe result:\n`, observeResult);
+
+  const agent = await stagehand.agent({
+    instructions: "You're a helpful assistant that can control a web browser.",
+  });
+
+  const agentResult = await agent.execute("What is the most accurate model to use in Stagehand?");
+  console.log(`Agent result:\n`, agentResult);
 
   await stagehand.close();
 }
