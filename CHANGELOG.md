@@ -1,5 +1,11 @@
 # create-browser-app
 
+## 2.1.0
+
+### Minor Changes
+
+- f0cf8ed: Adding agent to the create browser app example
+
 ## 2.0.0
 
 ### Major Changes
