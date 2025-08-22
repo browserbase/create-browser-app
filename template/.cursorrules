@@ -31,7 +31,7 @@ You can also pass in the following params:
 
 ```typescript
 await page.observe({
-  instruction: the instruction to execute,
+  instruction: "the instruction to execute",
   returnAction: true 
 });
 ```
@@ -39,39 +39,40 @@ await page.observe({
 - The result of `observe` is an array of `ObserveResult` objects that can directly be used as params for `act` like this:
   ```typescript
   const results = await page.observe({
-    instruction: the instruction to execute,
+    instruction: "the instruction to execute",
     returnAction: true, // return the action to execute
   });
+
   await page.act(results[0]);
   ```
+  
 - When writing code that needs to extract data from the page, use Stagehand `extract`. Explicitly pass the following params by default:
 
 ```typescript
 const { someValue } = await page.extract({
-  instruction: the instruction to execute,
+  instruction: "the instruction to execute",
   schema: z.object({
     someValue: z.string(),
   }), // The schema to extract
-  });
+});
 ```
 
 ## Initialize
 
 ```typescript
 import { Stagehand, Page, BrowserContext } from "@browserbasehq/stagehand";
-import StagehandConfig from "./stagehand.config";
 
-const stagehand = new Stagehand(StagehandConfig);
+const stagehand = new Stagehand({
+  env: "BROWSERBASE"
+});
+
 await stagehand.init();
 
 const page = stagehand.page; // Playwright Page with act, extract, and observe methods
+
 const context = stagehand.context; // Playwright BrowserContext
 ```
-
 ### Configuration Options
-
-Key configuration options in `StagehandConfig`:
-
 ```typescript
 const StagehandConfig = {
   env: "BROWSERBASE" | "LOCAL", // Environment to run in
@@ -87,58 +88,14 @@ const StagehandConfig = {
   },
 };
 ```
-
 ## Act
 
-### Direct Acting
 You can act directly with string instructions:
 
 ```typescript
 await page.act("Click the sign in button");
 ```
 
-### Cached Acting (Recommended)
-Use the `actWithCache` utility function for better performance and reliability:
-
-```typescript
-import { actWithCache } from "./utils.js";
-
-// This will cache the observe results for faster subsequent executions
-await actWithCache(page, "Click the sign in button");
-```
-
-### Manual Caching Pattern
-For custom caching logic, you can cache the results of `observe` and use them as params for `act`:
-
-```typescript
-import { readCache, simpleCache } from "./utils.js";
-
-const instruction = "Click the sign in button";
-const cachedAction = await readCache(instruction);
-
-if (cachedAction) {
-  await page.act(cachedAction);
-} else {
-  const results = await page.observe(instruction);
-  await simpleCache(instruction, results[0]);
-  await page.act(results[0]);
-}
-```
-
-### Debugging with Visual Overlays
-Use utility functions to visualize what Stagehand is targeting:
-
-```typescript
-import { drawObserveOverlay, clearOverlays } from "./utils.js";
-
-const results = await page.observe("Click the search button");
-await drawObserveOverlay(page, results); // Highlight the target element
-await page.waitForTimeout(1000); // Pause to see the overlay
-await clearOverlays(page); // Remove highlights
-await page.act(results[0]);
-```
-
-### Variable Substitution in Actions
 Use variables for dynamic form filling:
 
 ```typescript
@@ -156,7 +113,6 @@ await page.act({
 ```
 
 **Best Practices:**
-- Use `actWithCache` for repeated actions to improve performance
 - Cache the results of `observe` to avoid unexpected DOM changes
 - Keep actions atomic and specific (e.g., "Click the sign in button" not "Sign in to the website")
 - Use variable substitution for dynamic data entry
@@ -167,11 +123,13 @@ AVOID actions that are more than one step, i.e. "Order me pizza" or "Send an ema
 ## Extract
 
 ### Simple String Extraction
+
 ```typescript
 const signInButtonText = await page.extract("extract the sign in button text");
 ```
 
 ### Structured Extraction with Schema (Recommended)
+
 Always use Zod schemas for structured data extraction:
 
 ```typescript
@@ -186,6 +144,7 @@ const data = await page.extract({
 ```
 
 ### Array Extraction
+
 To extract multiple items, wrap the array in a single object:
 
 ```typescript
@@ -198,6 +157,7 @@ const data = await page.extract({
 ```
 
 ### Complex Object Extraction
+
 For more complex data structures:
 
 ```typescript
@@ -212,7 +172,9 @@ const productData = await page.extract({
   }),
 });
 ```
+
 ### Schema Validation
+
 ```typescript
 import { validateZodSchema } from "./utils.js";
 import { z } from "zod";
@@ -236,20 +198,22 @@ const agent = stagehand.agent({
   provider: "openai",
   model: "computer-use-preview",
   instructions: "You are a helpful assistant that can use a web browser.",
-  options: { apiKey: process.env.OPENAI_API_KEY }
+  options: { 
+    apiKey: process.env.OPENAI_API_KEY 
+  }
 });
 
 // Anthropic agent
 const agent = stagehand.agent({
   provider: "anthropic", 
-  model: "claude-3-7-sonnet-20250219",
+  model: "claude-sonnet-4-20250514",
   instructions: "You are a helpful assistant that can use a web browser.",
-  options: { apiKey: process.env.ANTHROPIC_API_KEY }
+  options: { 
+    apiKey: process.env.ANTHROPIC_API_KEY 
+  }
 });
 ```
-
 ### Agent Execution
-
 ```typescript
 // Simple task
 const result = await agent.execute("Extract the title from this webpage");
@@ -263,7 +227,6 @@ const result = await agent.execute({
 ```
 
 ### Best Practices
-
 - Be specific with instructions: `"Fill out the contact form with name 'John Doe' and submit it"`
 - Break down complex tasks into smaller steps
 - Use error handling with try/catch blocks
@@ -282,5 +245,4 @@ await agent.execute("Do some stuff on this page");
 - Store configurations in `stagehand.config.ts`
 - Use environment variables for API keys (see `.env.example`)
 - Implement main automation logic in functions that accept `{ page, context, stagehand }`
-- Cache actions using `actWithCache` for repeated workflows
 - Use TypeScript with proper imports from `@browserbasehq/stagehand`
