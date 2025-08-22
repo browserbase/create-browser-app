@@ -1,5 +1,11 @@
 # create-browser-app
 
+## 2.1.1
+
+### Patch Changes
+
+- 39dcf38: fix cursorrules spacing, remove agent await
+
 ## 2.1.0
 
 ### Minor Changes
