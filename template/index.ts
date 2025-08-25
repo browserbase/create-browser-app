@@ -24,7 +24,7 @@ async function main() {
   const observeResult = await page.observe("What can I click on this page?");
   console.log(`Observe result:\n`, observeResult);
 
-  const agent = await stagehand.agent({
+  const agent = stagehand.agent({
     instructions: "You're a helpful assistant that can control a web browser.",
   });
 
