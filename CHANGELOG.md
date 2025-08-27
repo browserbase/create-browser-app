@@ -1,5 +1,11 @@
 # create-browser-app
 
+## 2.1.2
+
+### Patch Changes
+
+- 3a19653: updated naming convention, only installing chromium from playwright instead of full package
+
 ## 2.1.1
 
 ### Patch Changes

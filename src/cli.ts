@@ -34,6 +34,10 @@ async function create(projectName: string) {
   console.log(chalk.cyan("Installing dependencies..."));
   execSync("npm install", { stdio: "inherit", cwd: projectDir });
 
+  // Install only Chromium for Playwright
+  console.log(chalk.cyan("Installing Chromium..."));
+  execSync("npx playwright install chromium", { stdio: "inherit", cwd: projectDir });
+
   // Initialize git repository
   try {
     execSync("git init", { stdio: "ignore", cwd: projectDir });
@@ -53,9 +57,10 @@ async function create(projectName: string) {
 program
   .name("create-browser-app")
   .description("Create a new browser application with Stagehand")
-  .argument("[project-name]", "Name of the project", "my-stagehand-app")
+  .argument("[project-name]", "Name of the project")
   .action((projectName: string) => {
-    create(projectName).catch((err) => {
+    const uniqueName = projectName || `my-stagehand-app-${Date.now()}`;
+    create(uniqueName).catch((err) => {
       console.error(chalk.red("Error creating project:"), err);
       process.exit(1);
     });
