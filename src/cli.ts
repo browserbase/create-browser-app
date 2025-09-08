@@ -5,9 +5,24 @@ import { execSync } from "child_process";
 import fs from "fs-extra";
 import path from "path";
 import { fileURLToPath } from "url";
+import readline from "readline";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+function prompt(question: string): Promise<string> {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+
+  return new Promise((resolve) => {
+    rl.question(question, (answer) => {
+      rl.close();
+      resolve(answer.trim());
+    });
+  });
+}
 
 async function create(projectName: string) {
   const projectDir = path.resolve(process.cwd(), projectName);
@@ -34,10 +49,6 @@ async function create(projectName: string) {
   console.log(chalk.cyan("Installing dependencies..."));
   execSync("npm install", { stdio: "inherit", cwd: projectDir });
 
-  // Install only Chromium for Playwright
-  console.log(chalk.cyan("Installing Chromium..."));
-  execSync("npx playwright install chromium", { stdio: "inherit", cwd: projectDir });
-
   // Initialize git repository
   try {
     execSync("git init", { stdio: "ignore", cwd: projectDir });
@@ -58,9 +69,19 @@ program
   .name("create-browser-app")
   .description("Create a new browser application with Stagehand")
   .argument("[project-name]", "Name of the project")
-  .action((projectName: string) => {
-    const uniqueName = projectName || `my-stagehand-app-${Date.now()}`;
-    create(uniqueName).catch((err) => {
+  .action(async (projectName: string) => {
+    let appName = projectName;
+    
+    if (!appName) {
+      appName = await prompt(chalk.cyan("What would you like to name your app? "));
+      
+      if (!appName) {
+        console.error(chalk.red("App name is required"));
+        process.exit(1);
+      }
+    }
+    
+    create(appName).catch((err) => {
       console.error(chalk.red("Error creating project:"), err);
       process.exit(1);
     });
