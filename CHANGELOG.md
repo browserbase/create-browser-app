@@ -1,5 +1,11 @@
 # create-browser-app
 
+## 2.2.0
+
+### Minor Changes
+
+- e4473f8: Updating AI rules information, add naming to quickstart, remove chromium from default downloading
+
 ## 2.1.2
 
 ### Patch Changes
