@@ -50,14 +50,6 @@ await page.observe({
   await page.act(results[0]);
   ```
 
-- Use a11y-dom-hybrid input for enhanced observation with accessibility and scrollable information:
-  ```typescript
-  const results = await page.observe({
-    instruction: "Find clickable buttons on the page",
-    input: "a11y-dom-hybrid" // Includes accessibility info and scrollable annotations
-  });
-  ```
-  
 - When writing code that needs to extract data from the page, use Stagehand `extract`. Explicitly pass the following params by default:
 
 ```typescript
@@ -90,9 +82,7 @@ const StagehandConfig = {
   env: "BROWSERBASE" | "LOCAL", // Environment to run in
   apiKey: process.env.BROWSERBASE_API_KEY, // Browserbase API key
   projectId: process.env.BROWSERBASE_PROJECT_ID, // Browserbase project ID
-  domSettleTimeoutMs: 30_000, // Timeout for DOM to settle (default: 30_000)
-  enableCaching: true, // Enable action caching (default: true)
-  verbose: 1, // Logging verbosity (0-3, default: 1)
+  verbose: 1, // Logging verbosity (0-2, 0: silent, 1: info, 2: debug)
   logger: (logLine: LogLine) => console.log(`[${logLine.category}] ${logLine.message}`), // Custom logger function
   modelName: "openai/gpt-4o", // AI model to use (available: gpt-4o, claude-3-7-sonnet-latest, gemini-2.0-flash, o3-mini, etc.)
   modelClientOptions: {
