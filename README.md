@@ -4,7 +4,7 @@ A CLI tool to quickly create browser automation applications using Browserbase a
 
 ## Features
 
-- Quick stagehand project scaffolding 
+- Quick stagehand project scaffolding
 - Configurable environment (Local or Browserbase cloud)
 
 ## Installation
