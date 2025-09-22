@@ -5,84 +5,158 @@ import { execSync } from "child_process";
 import fs from "fs-extra";
 import path from "path";
 import { fileURLToPath } from "url";
-import readline from "readline";
+import boxen from "boxen";
+import { getTemplateByName, fetchTemplateContent } from "./templateFetcher.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-function prompt(question: string): Promise<string> {
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
-
-  return new Promise((resolve) => {
-    rl.question(question, (answer) => {
-      rl.close();
-      resolve(answer.trim());
-    });
-  });
+function showLogo() {
+  console.log(
+    chalk.yellow(`
+    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⡾⠻⣶⡀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⢠⡶⠛⢳⡆⠀⠀⠀⠀⢸⡇⠀⢸⡇⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⢸⡇⠀⢸⣷⠶⣦⣴⠶⣾⡇⠀⢸⡇⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⢸⡇⠀⢸⡇⠀⢸⡇⠀⢸⡇⠀⢸⡇⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⢸⡇⠀⠘⠷⣤⢾⡏⠉⠉⠉⠙⣾⡇⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⢸⡇⠀⠀⠀⠀⠈⣻⡿⠟⠂⠀⣿⠃⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠈⣷⠀⠀⠀⠀⢰⡏⠀⠀⠀⢀⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⣷⡀⠀⠀⠀⠀⠀⠀⢀⡾⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠙⠷⣦⣤⣤⣴⠾⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀`)
+  );
+  console.log(chalk.yellow.bold("Stagehand"));
+  console.log(chalk.dim("The AI Browser Framework\n"));
 }
 
-async function create(projectName: string) {
-  const projectDir = path.resolve(process.cwd(), projectName);
-  if (fs.existsSync(projectDir)) {
-    console.error(chalk.red(`Directory ${projectName} already exists`));
+async function main(
+  name: string = "my-stagehand-app",
+  template: string = "basic"
+) {
+  showLogo();
+
+  const projectName = name;
+
+  // Sanitize project name for directory
+  const projectDir = projectName
+    .toLowerCase()
+    .replace(/ /g, "-")
+    .replace(/_/g, "-");
+  const projectPath = path.resolve(process.cwd(), projectDir);
+
+  // Check if directory exists
+  if (fs.existsSync(projectPath)) {
+    console.error(
+      chalk.red(
+        `Error: Directory '${projectDir}' already exists. Give your app a different name by calling \`npx create-browser-app <name>\``
+      )
+    );
     process.exit(1);
   }
 
-  console.log(chalk.cyan(`Creating ${projectName}...`));
-
-  // Copy template directory to project directory
-  const templateDir = path.join(__dirname, "..", "template");
-  fs.copySync(templateDir, projectDir);
-
-  // Update package.json name
-  const packageJsonPath = path.join(projectDir, "package.json");
-  if (fs.existsSync(packageJsonPath)) {
-    const packageJson = fs.readJsonSync(packageJsonPath);
-    packageJson.name = projectName;
-    fs.writeJsonSync(packageJsonPath, packageJson, { spaces: 2 });
-  }
-
-  // Install dependencies
-  console.log(chalk.cyan("Installing dependencies..."));
-  execSync("npm install", { stdio: "inherit", cwd: projectDir });
-
-  // Initialize git repository
+  // Create project structure
   try {
-    execSync("git init", { stdio: "ignore", cwd: projectDir });
-    execSync("git add -A", { stdio: "ignore", cwd: projectDir });
-    execSync('git commit -m "init stagehand app"', { stdio: "ignore", cwd: projectDir });
-  } catch {
-    // Git init failed, continue anyway
-  }
+    console.log(`Creating ${chalk.bold.cyan(projectDir)}...\n`);
 
-  console.log(chalk.green(`\n✅ Created ${projectName}`));
-  console.log("\nNext steps:");
-  console.log(chalk.cyan(`  cd ${projectName}`));
-  console.log(chalk.cyan(`  cp .env.example .env  # Add your API keys`));
-  console.log(chalk.cyan(`  npm start`));
+    // Create directories
+    fs.mkdirSync(projectPath, { recursive: true });
+
+    // Determine which template to use
+    let useGithubTemplate = false;
+    let githubTemplateContent: string | null = null;
+
+    // If not using basic template, try to fetch from GitHub
+    if (template !== "basic") {
+      console.log(`Fetching template ${chalk.cyan(template)} from GitHub...`);
+      const templateInfo = getTemplateByName(template);
+      if (templateInfo) {
+        githubTemplateContent = await fetchTemplateContent(templateInfo);
+        if (githubTemplateContent) {
+          useGithubTemplate = true;
+          console.log(
+            chalk.green("✓") + ` Using template from GitHub: ${template}`
+          );
+        } else {
+          console.log(
+            chalk.yellow("⚠") +
+              ` Could not fetch template, using basic template`
+          );
+        }
+      } else {
+        console.log(
+          chalk.yellow("⚠") +
+            ` Template '${template}' not found, using basic template`
+        );
+      }
+    }
+
+    // Copy template directory to project directory
+    const templateDir = path.join(__dirname, "..", "template");
+    fs.copySync(templateDir, projectPath);
+
+    // If we have GitHub template content, overwrite index.ts
+    if (useGithubTemplate && githubTemplateContent) {
+      const indexPath = path.join(projectPath, "index.ts");
+      fs.writeFileSync(indexPath, githubTemplateContent);
+    }
+
+    // Update package.json name
+    const packageJsonPath = path.join(projectPath, "package.json");
+    if (fs.existsSync(packageJsonPath)) {
+      const packageJson = fs.readJsonSync(packageJsonPath);
+      packageJson.name = projectName;
+      fs.writeJsonSync(packageJsonPath, packageJson, { spaces: 2 });
+    }
+
+    // Update README.md with project name
+    const readmePath = path.join(projectPath, "README.md");
+    if (fs.existsSync(readmePath)) {
+      let readme = fs.readFileSync(readmePath, "utf-8");
+      readme = readme.replace(/# Stagehand Project/g, `# ${projectName}`);
+      fs.writeFileSync(readmePath, readme);
+    }
+
+    // Success message
+    console.log(
+      chalk.green("✓") + ` Find your project at ${chalk.cyan(projectPath)}\n`
+    );
+
+    // Styled next steps
+    const nextSteps = `${chalk.bold.cyan("1.")} cd ${projectDir}
+${chalk.bold.cyan("2.")} npm install
+${chalk.bold.cyan("3.")} cp .env.example .env
+${chalk.bold.cyan("4.")} ${chalk.dim("Add your Browserbase API key to .env")}
+${chalk.bold.cyan("5.")} npm start`;
+
+    console.log(
+      boxen(nextSteps, {
+        title: chalk.bold.yellow("🚀 Launch now 🚀"),
+        titleAlignment: "center",
+        padding: 1,
+        margin: 1,
+        borderStyle: "round",
+        borderColor: "yellow",
+      })
+    );
+  } catch (error) {
+    console.error(chalk.red(`Error creating project: ${error}`));
+    process.exit(1);
+  }
 }
 
 program
   .name("create-browser-app")
-  .description("Create a new browser application with Stagehand")
-  .argument("[project-name]", "Name of the project")
-  .action(async (projectName: string) => {
-    let appName = projectName;
-    
-    if (!appName) {
-      appName = await prompt(chalk.cyan("What would you like to name your app? "));
-      
-      if (!appName) {
-        console.error(chalk.red("App name is required"));
-        process.exit(1);
-      }
-    }
-    
-    create(appName).catch((err) => {
-      console.error(chalk.red("Error creating project:"), err);
+  .description("Start your Stagehand project with a single command")
+  .argument("[name]", "Name of the project", "my-stagehand-app")
+  .option(
+    "-t, --template <template>",
+    "Template to use (basic or GitHub examples: example, cua-example)",
+    "basic"
+  )
+  .action(async (name: string, options: { template: string }) => {
+    await main(name, options.template).catch((err) => {
+      console.error(chalk.red("Error:"), err);
       process.exit(1);
     });
   });

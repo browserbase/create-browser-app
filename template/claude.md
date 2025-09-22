@@ -3,6 +3,7 @@
 This is a project that uses [Stagehand](https://github.com/browserbase/stagehand), which amplifies Playwright with AI-powered `act`, `extract`, and `observe` methods added to the Page class.
 
 `Stagehand` is a class that provides configuration and browser automation capabilities with:
+
 - `stagehand.page`: A StagehandPage object (extends Playwright Page)
 - `stagehand.context`: A StagehandContext object (extends Playwright BrowserContext)
 - `stagehand.agent()`: Create AI-powered agents for autonomous multi-step workflows
@@ -10,11 +11,13 @@ This is a project that uses [Stagehand](https://github.com/browserbase/stagehand
 - `stagehand.close()`: Clean up resources
 
 `Page` extends Playwright's Page class with AI-powered methods:
+
 - `act()`: Perform actions on web elements using natural language
 - `extract()`: Extract structured data from pages using schemas
 - `observe()`: Plan actions and get selectors before executing
 
 `Agent` provides autonomous Computer Use Agent capabilities:
+
 - `execute()`: Perform complex multi-step tasks using natural language instructions
 
 `Context` extends Playwright's BrowserContext class for browser session management.
@@ -36,11 +39,12 @@ await page.observe({
   iframes: false, // Set to true if content exists within iframe
   modelName: "gpt-4o", // Specify model for observation
   modelClientOptions: { apiKey: process.env.OPENAI_API_KEY }, // Model client options
-  domSettleTimeoutMs: 30000 // Wait for DOM to settle
+  domSettleTimeoutMs: 30000, // Wait for DOM to settle
 });
 ```
 
 - The result of `observe` is an array of `ObserveResult` objects that can directly be used as params for `act` like this:
+
   ```typescript
   const results = await page.observe({
     instruction: "the instruction to execute",
@@ -67,7 +71,7 @@ const { someValue } = await page.extract({
 import { Stagehand, Page, BrowserContext } from "@browserbasehq/stagehand";
 
 const stagehand = new Stagehand({
-  env: "BROWSERBASE"
+  env: "BROWSERBASE",
 });
 
 await stagehand.init();
@@ -76,14 +80,17 @@ const page = stagehand.page; // Playwright Page with act, extract, and observe m
 
 const context = stagehand.context; // Playwright BrowserContext
 ```
+
 ### Configuration Options
+
 ```typescript
 const StagehandConfig = {
   env: "BROWSERBASE" | "LOCAL", // Environment to run in
   apiKey: process.env.BROWSERBASE_API_KEY, // Browserbase API key
   projectId: process.env.BROWSERBASE_PROJECT_ID, // Browserbase project ID
   verbose: 1, // Logging verbosity (0-2, 0: silent, 1: info, 2: debug)
-  logger: (logLine: LogLine) => console.log(`[${logLine.category}] ${logLine.message}`), // Custom logger function
+  logger: (logLine: LogLine) =>
+    console.log(`[${logLine.category}] ${logLine.message}`), // Custom logger function
   modelName: "openai/gpt-4o", // AI model to use (available: gpt-4o, claude-3-7-sonnet-latest, gemini-2.0-flash, o3-mini, etc.)
   modelClientOptions: {
     apiKey: process.env.OPENAI_API_KEY, // OpenAI API key
@@ -95,11 +102,12 @@ const StagehandConfig = {
     browserSettings: {
       advancedStealth: true, // Enhanced stealth mode (Scale plans only)
       blockAds: true, // Block ad popups (default: false)
-      viewport: { width: 1024, height: 768 } // Browser viewport size
-    }
+      viewport: { width: 1024, height: 768 }, // Browser viewport size
+    },
   },
 };
 ```
+
 ## Act
 
 You can act directly with string instructions:
@@ -119,8 +127,8 @@ await page.act({
   variables: {
     name: "John Doe",
     email: "john@example.com",
-    phone: "+1-555-0123"
-  }
+    phone: "+1-555-0123",
+  },
 });
 ```
 
@@ -131,14 +139,17 @@ await page.act({
   action: "Click the sign in button",
   modelName: "gpt-4o", // Specify model for this action
   modelClientOptions: { apiKey: process.env.OPENAI_API_KEY }, // Model client options
-  variables: { /* variable substitutions */ },
+  variables: {
+    /* variable substitutions */
+  },
   iframes: false, // Set to true if target element is in iframe
   domSettleTimeoutMs: 30000, // Wait for DOM to settle
-  timeoutMs: 10000 // Action timeout
+  timeoutMs: 10000, // Action timeout
 });
 ```
 
 **Best Practices:**
+
 - Cache the results of `observe` to avoid unexpected DOM changes
 - Keep actions atomic and specific (e.g., "Click the sign in button" not "Sign in to the website")
 - Use variable substitution for dynamic data entry
@@ -180,7 +191,7 @@ const data = await page.extract({
   selector: "//button[@class='signin']", // XPath to narrow extraction scope
   modelName: "gpt-4o", // Specify model for extraction
   modelClientOptions: { apiKey: process.env.OPENAI_API_KEY }, // Model client options
-  domSettleTimeoutMs: 30000 // Wait for DOM to settle
+  domSettleTimeoutMs: 30000, // Wait for DOM to settle
 });
 ```
 
@@ -193,7 +204,7 @@ const data = await page.extract({
   instruction: "extract the text inside all buttons",
   schema: z.object({
     buttons: z.array(z.string()),
-  })
+  }),
 });
 ```
 
@@ -240,8 +251,8 @@ const agent = stagehand.agent({
   model: "gpt-4o", // Use latest GPT-4o models: gpt-4o, gpt-4o-november-snapshot
   instructions: "You are a helpful assistant that can use a web browser.",
   options: {
-    apiKey: process.env.OPENAI_API_KEY
-  }
+    apiKey: process.env.OPENAI_API_KEY,
+  },
 });
 
 // Anthropic agent with latest models
@@ -250,11 +261,13 @@ const agent = stagehand.agent({
   model: "claude-3-7-sonnet-latest", // Use latest Claude models
   instructions: "You are a helpful assistant that can use a web browser.",
   options: {
-    apiKey: process.env.ANTHROPIC_API_KEY
-  }
+    apiKey: process.env.ANTHROPIC_API_KEY,
+  },
 });
 ```
+
 ### Agent Execution
+
 ```typescript
 // Simple task
 const result = await agent.execute("Extract the title from this webpage");
@@ -263,11 +276,12 @@ const result = await agent.execute("Extract the title from this webpage");
 const result = await agent.execute({
   instruction: "Apply for the first engineer position with mock data",
   maxSteps: 20, // Maximum number of steps to execute
-  autoScreenshot: true // Automatically take screenshots during execution
+  autoScreenshot: true, // Automatically take screenshots during execution
 });
 ```
 
 ### Best Practices
+
 - Be specific with instructions: `"Fill out the contact form with name 'John Doe' and submit it"`
 - Break down complex tasks into smaller steps
 - Use error handling with try/catch blocks
@@ -292,8 +306,8 @@ const data = await page.extract({
   instruction: "Extract product details",
   schema: z.object({
     price: z.string().describe("the current price of the product in USD"),
-    rating: z.number().describe("the star rating out of 5")
-  })
+    rating: z.number().describe("the star rating out of 5"),
+  }),
 });
 ```
 
