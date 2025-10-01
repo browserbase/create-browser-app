@@ -18,6 +18,31 @@ const GITHUB_TEMPLATES: TemplateInfo[] = [
     path: "examples/cua-example.ts",
     url: "https://raw.githubusercontent.com/browserbase/stagehand/main/examples/cua-example.ts",
   },
+  {
+    name: "form-filling",
+    path: "typescript/form-filling/index.ts",
+    url: "https://raw.githubusercontent.com/browserbase/templates/refs/heads/dev/typescript/formFilling/index.ts",
+  },
+  {
+    name: "gift-finder",
+    path: "typescript/gift-finder/index.ts",
+    url: "https://raw.githubusercontent.com/browserbase/templates/refs/heads/dev/typescript/giftfinder/index.ts",
+  },
+  {
+    name: "pickleball",
+    path: "typescript/pickleball/index.ts",
+    url: "https://raw.githubusercontent.com/browserbase/templates/refs/heads/dev/typescript/pickleball/index.ts",
+  },
+  {
+    name: "real-estate-check",
+    path: "typescript/real-estate-check/index.ts",
+    url: "https://raw.githubusercontent.com/browserbase/templates/refs/heads/dev/typescript/realEstateCheck/index.ts",
+  },
+  {
+    name: "context",
+    path: "typescript/context/index.ts",
+    url: "https://raw.githubusercontent.com/browserbase/templates/refs/heads/dev/typescript/context/index.ts",
+  },
 ];
 
 export function getTemplateByName(name: string): TemplateInfo | undefined {
@@ -32,7 +57,7 @@ export function fetchTemplateContent(
 
     const options = {
       hostname: url.hostname,
-      path: url.pathname,
+      path: url.pathname + url.search,
       method: "GET",
       headers: {
         "User-Agent": "create-browser-app",
