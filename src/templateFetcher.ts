@@ -21,27 +21,27 @@ const GITHUB_TEMPLATES: TemplateInfo[] = [
   {
     name: "form-filling",
     path: "typescript/form-filling/index.ts",
-    url: "https://raw.githubusercontent.com/browserbase/templates/refs/heads/dev/typescript/formFilling/index.ts?token=GHSAT0AAAAAAC7F2JVCCUDJV3FM42PGGMBE2G42AQQ",
+    url: "https://raw.githubusercontent.com/browserbase/templates/refs/heads/dev/typescript/formFilling/index.ts",
   },
   {
     name: "gift-finder",
     path: "typescript/gift-finder/index.ts",
-    url: "https://raw.githubusercontent.com/browserbase/templates/refs/heads/dev/typescript/giftfinder/index.ts?token=GHSAT0AAAAAAC7F2JVCDOP477A6M3KAEHOU2G42FLA",
+    url: "https://raw.githubusercontent.com/browserbase/templates/refs/heads/dev/typescript/giftfinder/index.ts",
   },
   {
     name: "pickleball",
     path: "typescript/pickleball/index.ts",
-    url: "https://raw.githubusercontent.com/browserbase/templates/refs/heads/dev/typescript/pickleball/index.ts?token=GHSAT0AAAAAAC7F2JVCCUDJV3FM42PGGMBE2G42AQQ",
+    url: "https://raw.githubusercontent.com/browserbase/templates/refs/heads/dev/typescript/pickleball/index.ts",
   },
   {
     name: "real-estate-check",
     path: "typescript/real-estate-check/index.ts",
-    url: "https://raw.githubusercontent.com/browserbase/templates/refs/heads/dev/typescript/realEstateCheck/index.ts?token=GHSAT0AAAAAAC7F2JVCCUDJV3FM42PGGMBE2G42AQQ",
+    url: "https://raw.githubusercontent.com/browserbase/templates/refs/heads/dev/typescript/realEstateCheck/index.ts",
   },
   {
     name: "context",
     path: "typescript/context/index.ts",
-    url: "https://raw.githubusercontent.com/browserbase/templates/refs/heads/dev/typescript/context/index.ts?token=GHSAT0AAAAAAC7F2JVCCUDJV3FM42PGGMBE2G42AQQ",
+    url: "https://raw.githubusercontent.com/browserbase/templates/refs/heads/dev/typescript/context/index.ts",
   },
 ];
 
