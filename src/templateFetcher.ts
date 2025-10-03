@@ -21,12 +21,12 @@ const GITHUB_TEMPLATES: TemplateInfo[] = [
   {
     name: "form-filling",
     path: "typescript/form-filling/index.ts",
-    url: "https://raw.githubusercontent.com/browserbase/templates/refs/heads/dev/typescript/formFilling/index.ts",
+    url: "https://raw.githubusercontent.com/browserbase/templates/refs/heads/dev/typescript/form-filling/index.ts",
   },
   {
     name: "gift-finder",
     path: "typescript/gift-finder/index.ts",
-    url: "https://raw.githubusercontent.com/browserbase/templates/refs/heads/dev/typescript/giftfinder/index.ts",
+    url: "https://raw.githubusercontent.com/browserbase/templates/refs/heads/dev/typescript/gift-finder/index.ts",
   },
   {
     name: "pickleball",
@@ -34,15 +34,21 @@ const GITHUB_TEMPLATES: TemplateInfo[] = [
     url: "https://raw.githubusercontent.com/browserbase/templates/refs/heads/dev/typescript/pickleball/index.ts",
   },
   {
-    name: "real-estate-check",
-    path: "typescript/real-estate-check/index.ts",
-    url: "https://raw.githubusercontent.com/browserbase/templates/refs/heads/dev/typescript/realEstateCheck/index.ts",
+    name: "license-verification",
+    path: "typescript/license-verification/index.ts",
+    url: "https://raw.githubusercontent.com/browserbase/templates/refs/heads/dev/typescript/license-verification/index.ts",
   },
   {
     name: "context",
     path: "typescript/context/index.ts",
     url: "https://raw.githubusercontent.com/browserbase/templates/refs/heads/dev/typescript/context/index.ts",
   },
+  {
+    name: "proxies",
+    path: "typescript/proxies/index.ts",
+    url: "https://raw.githubusercontent.com/browserbase/templates/refs/heads/dev/typescript/proxies/index.ts",
+  },
+];
 ];
 
 export function getTemplateByName(name: string): TemplateInfo | undefined {

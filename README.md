@@ -43,8 +43,9 @@ Available templates:
 - `form-filling` - Automated form filling
 - `gift-finder` - Gift recommendation finder
 - `pickleball` - Pickleball court booking
-- `real-estate-check` - Real estate data extraction
+- `license-verification` - Real estate data extraction
 - `context` - Browser context management
+- `proxies` - Browser proxy management
 
 ### Getting Started
 
