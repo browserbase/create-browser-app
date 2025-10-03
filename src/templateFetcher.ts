@@ -49,7 +49,6 @@ const GITHUB_TEMPLATES: TemplateInfo[] = [
     url: "https://raw.githubusercontent.com/browserbase/templates/refs/heads/dev/typescript/proxies/index.ts",
   },
 ];
-];
 
 export function getTemplateByName(name: string): TemplateInfo | undefined {
   return GITHUB_TEMPLATES.find((t) => t.name === name);
