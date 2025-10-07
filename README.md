@@ -46,7 +46,7 @@ Available templates:
 - `license-verification` - Real estate data extraction
 - `context` - Browser context management
 - `proxies` - Browser proxy management
-
+- `gemini-cua` - Gemini 2.5 Computer Use Agent Example
 ### Getting Started
 
 After creating your project:
