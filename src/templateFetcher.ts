@@ -48,6 +48,11 @@ const GITHUB_TEMPLATES: TemplateInfo[] = [
     path: "typescript/proxies/index.ts",
     url: "https://raw.githubusercontent.com/browserbase/templates/refs/heads/dev/typescript/proxies/index.ts",
   },
+  {
+    name: "gemini-cua",
+    path: "typescript/gemini-cua/index.ts",
+    url: "https://raw.githubusercontent.com/browserbase/templates/refs/heads/dev/typescript/gemini-cua/index.ts",
+  },
 ];
 
 export function getTemplateByName(name: string): TemplateInfo | undefined {
