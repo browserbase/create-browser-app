@@ -68,14 +68,14 @@ async function main(
 
     // If not using basic template, try to fetch from GitHub
     if (template !== "basic") {
-      console.log(`Fetching template ${chalk.cyan(template)} from GitHub...`);
-      const templateInfo = getTemplateByName(template);
+      console.log(`Fetching template ${chalk.cyan(template)}...`);
+      const templateInfo = await getTemplateByName(template);
       if (templateInfo) {
         githubTemplateContent = await fetchTemplateContent(templateInfo);
         if (githubTemplateContent) {
           useGithubTemplate = true;
           console.log(
-            chalk.green("✓") + ` Using template from GitHub: ${template}`
+            chalk.green("✓") + ` Using template: ${template}`
           );
         } else {
           console.log(
