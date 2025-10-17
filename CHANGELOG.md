@@ -1,5 +1,19 @@
 # create-browser-app
 
+## 2.4.0
+
+### Minor Changes
+
+- 7210701: New CLI look
+
+### Patch Changes
+
+- dynamically fetch templates from example repo
+- c1f09b2: add google cua template
+- fe79737: template support, new cli"
+- a7aff21: New CLI format
+- 308a112: Fixes links to the updated template paths
+
 ## 2.2.0
 
 ### Minor Changes
