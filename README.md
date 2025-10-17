@@ -38,15 +38,9 @@ npx create-browser-app my-project-name --template example
 
 Available templates:
 - `basic` (default) - Basic Stagehand project setup
-- `example` - General Stagehand example
-- `cua-example` - Computer Use Agent example
-- `form-filling` - Automated form filling
-- `gift-finder` - Gift recommendation finder
-- `pickleball` - Pickleball court booking
-- `license-verification` - Real estate data extraction
-- `context` - Browser context management
-- `proxies` - Browser proxy management
-- `gemini-cua` - Gemini 2.5 Computer Use Agent Example
+- Additional templates are automatically fetched from the [browserbase/templates](https://github.com/browserbase/templates/tree/dev/typescript) repository
+
+Examples include: `form-filling`, `gift-finder`, `pickleball`, `license-verification`, `context`, `proxies`, `gemini-cua`, and more
 ### Getting Started
 
 After creating your project:

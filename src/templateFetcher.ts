@@ -7,56 +7,72 @@ interface TemplateInfo {
   url: string;
 }
 
-const GITHUB_TEMPLATES: TemplateInfo[] = [
-  {
-    name: "example",
-    path: "examples/example.ts",
-    url: "https://raw.githubusercontent.com/browserbase/stagehand/main/examples/example.ts",
-  },
-  {
-    name: "cua-example",
-    path: "examples/cua-example.ts",
-    url: "https://raw.githubusercontent.com/browserbase/stagehand/main/examples/cua-example.ts",
-  },
-  {
-    name: "form-filling",
-    path: "typescript/form-filling/index.ts",
-    url: "https://raw.githubusercontent.com/browserbase/templates/refs/heads/dev/typescript/form-filling/index.ts",
-  },
-  {
-    name: "gift-finder",
-    path: "typescript/gift-finder/index.ts",
-    url: "https://raw.githubusercontent.com/browserbase/templates/refs/heads/dev/typescript/gift-finder/index.ts",
-  },
-  {
-    name: "pickleball",
-    path: "typescript/pickleball/index.ts",
-    url: "https://raw.githubusercontent.com/browserbase/templates/refs/heads/dev/typescript/pickleball/index.ts",
-  },
-  {
-    name: "license-verification",
-    path: "typescript/license-verification/index.ts",
-    url: "https://raw.githubusercontent.com/browserbase/templates/refs/heads/dev/typescript/license-verification/index.ts",
-  },
-  {
-    name: "context",
-    path: "typescript/context/index.ts",
-    url: "https://raw.githubusercontent.com/browserbase/templates/refs/heads/dev/typescript/context/index.ts",
-  },
-  {
-    name: "proxies",
-    path: "typescript/proxies/index.ts",
-    url: "https://raw.githubusercontent.com/browserbase/templates/refs/heads/dev/typescript/proxies/index.ts",
-  },
-  {
-    name: "gemini-cua",
-    path: "typescript/gemini-cua/index.ts",
-    url: "https://raw.githubusercontent.com/browserbase/templates/refs/heads/dev/typescript/gemini-cua/index.ts",
-  },
-];
+interface GitHubAPIResponse {
+  name: string;
+  type: string;
+  path: string;
+}
 
-export function getTemplateByName(name: string): TemplateInfo | undefined {
-  return GITHUB_TEMPLATES.find((t) => t.name === name);
+
+export function fetchTypeScriptTemplates(): Promise<TemplateInfo[]> {
+  return new Promise((resolve) => {
+    const options = {
+      hostname: "api.github.com",
+      path: "/repos/browserbase/templates/contents/typescript",
+      method: "GET",
+      headers: {
+        "User-Agent": "create-browser-app",
+        "Accept": "application/vnd.github+json",
+      },
+    };
+
+    https
+      .get(options, (res) => {
+        let data = "";
+
+        if (res.statusCode !== 200) {
+          resolve([]);
+          return;
+        }
+
+        res.on("data", (chunk) => {
+          data += chunk;
+        });
+
+        res.on("end", () => {
+          try {
+            const items: GitHubAPIResponse[] = JSON.parse(data);
+            const templates = items
+              .filter((item) => item.type === "dir")
+              .map((item) => buildTemplateInfo(item.name));
+            resolve(templates);
+          } catch (error) {
+            resolve([]);
+          }
+        });
+      })
+      .on("error", () => {
+        resolve([]);
+      });
+  });
+}
+
+/**
+ * Builds a TemplateInfo object from a template name (directory slug)
+ */
+function buildTemplateInfo(name: string): TemplateInfo {
+  return {
+    name,
+    path: `typescript/${name}/index.ts`,
+    url: `https://raw.githubusercontent.com/browserbase/templates/dev/typescript/${name}/index.ts`,
+  };
+}
+
+export async function getTemplateByName(
+  name: string
+): Promise<TemplateInfo | undefined> {
+  const templates = await fetchTypeScriptTemplates();
+  return templates.find((t) => t.name === name);
 }
 
 export function fetchTemplateContent(
@@ -99,6 +115,7 @@ export function fetchTemplateContent(
 
 export async function getAvailableTemplates(): Promise<string[]> {
   const defaultTemplates = ["basic"];
-  const githubTemplates = GITHUB_TEMPLATES.map((t) => t.name);
+  const templates = await fetchTypeScriptTemplates();
+  const githubTemplates = templates.map((t) => t.name);
   return [...defaultTemplates, ...githubTemplates];
 }
