@@ -13,19 +13,19 @@ async function main() {
     `Watch live: https://browserbase.com/sessions/${stagehand.browserbaseSessionID}`
   );
 
-  const page = stagehand.context.pages()[0];
+  const page = stagehand.page;
 
   await page.goto("https://stagehand.dev");
 
-  const extractResult = await stagehand.extract(
+  const extractResult = await page.extract(
     "Extract the value proposition from the page."
   );
   console.log(`Extract result:\n`, extractResult);
 
-  const actResult = await stagehand.act("Click the 'Evals' button.");
+  const actResult = await page.act("Click the 'Evals' button.");
   console.log(`Act result:\n`, actResult);
 
-  const observeResult = await stagehand.observe("What can I click on this page?");
+  const observeResult = await page.observe("What can I click on this page?");
   console.log(`Observe result:\n`, observeResult);
 
   const agent = stagehand.agent({
