@@ -1,5 +1,11 @@
 # create-browser-app
 
+## 2.5.0
+
+### Minor Changes
+
+- 8e529d7: update to stagehand v3
+
 ## 2.4.0
 
 ### Minor Changes
