@@ -29,7 +29,7 @@ async function main() {
   console.log(`Observe result:\n`, observeResult);
 
   const agent = stagehand.agent({
-    instructions: "You're a helpful assistant that can control a web browser.",
+    systemPrompt: "You're a helpful assistant that can control a web browser.",
   });
 
   const agentResult = await agent.execute(
