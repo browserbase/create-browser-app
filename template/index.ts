@@ -10,7 +10,7 @@ async function main() {
 
   console.log(`Stagehand Session Started`);
   console.log(
-    `Watch live: https://browserbase.com/sessions/${stagehand.browserbaseSessionID}`
+    `Watch live: https://browserbase.com/sessions/${stagehand.browserbaseSessionId}`
   );
 
   const page = stagehand.context.pages()[0];
