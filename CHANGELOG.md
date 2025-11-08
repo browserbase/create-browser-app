@@ -1,5 +1,11 @@
 # create-browser-app
 
+## 2.5.2
+
+### Patch Changes
+
+- Stagehand Agent param is instructions instead of systemPrompt
+
 ## 2.5.0
 
 ### Minor Changes
