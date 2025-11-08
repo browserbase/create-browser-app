@@ -1,12 +1,10 @@
 # create-browser-app
 
-## 2.5.1
+## 2.5.2
 
 ### Patch Changes
 
 - Stagehand Agent param is instructions instead of systemPrompt
-- 880606c: Fix browserbase session ID ref
-- 3ef3924: Change to make agent param default to systemPrompt instead of instructions for stagehand v3
 
 ## 2.5.0
 
