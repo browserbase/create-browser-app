@@ -1,6 +1,6 @@
 # create-browser-app
 
-## 2.5.1
+## 2.5.2
 
 ### Patch Changes
 
