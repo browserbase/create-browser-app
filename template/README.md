@@ -32,4 +32,4 @@ We have custom .cursorrules for this project. It'll help quite a bit with writin
 
 ### Run on Local
 
-To run on a local browser, add your API keys to .env and change `env: "LOCAL"` to `env: "BROWSERBASE"` in [stagehand.config.ts](stagehand.config.ts).
+To run on a local browser, add your API keys to .env and change `env: "BROWSERBASE"` to `env: "LOCAL"` in [index.ts](index.ts).
