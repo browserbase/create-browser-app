@@ -1,5 +1,11 @@
 # create-browser-app
 
+## 2.5.3
+
+### Patch Changes
+
+- Currently, the README states that running on a local browser requires you to switch LOCAL to BROWSERBASE in stagehand.config.ts - this updates the file location to index.ts, and swaps the order to be BROWSERBASE -> LOCAL
+
 ## 2.5.2
 
 ### Patch Changes
