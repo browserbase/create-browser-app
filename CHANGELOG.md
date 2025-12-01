@@ -1,5 +1,15 @@
 # create-browser-app
 
+## 2.6.0
+
+### Minor Changes
+
+- adding readme to templates
+
+### Patch Changes
+
+- 14a939a: Add azure examples to .env.example
+
 ## 2.5.2
 
 ### Patch Changes
