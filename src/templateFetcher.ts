@@ -5,6 +5,7 @@ interface TemplateInfo {
   name: string;
   path: string;
   url: string;
+  readmeUrl: string;
 }
 
 interface GitHubAPIResponse {
@@ -65,6 +66,7 @@ function buildTemplateInfo(name: string): TemplateInfo {
     name,
     path: `typescript/${name}/index.ts`,
     url: `https://raw.githubusercontent.com/browserbase/templates/dev/typescript/${name}/index.ts`,
+    readmeUrl: `https://raw.githubusercontent.com/browserbase/templates/dev/typescript/${name}/README.md`,
   };
 }
 
@@ -78,8 +80,18 @@ export async function getTemplateByName(
 export function fetchTemplateContent(
   template: TemplateInfo
 ): Promise<string | null> {
+  return fetchFromUrl(template.url);
+}
+
+export function fetchTemplateReadme(
+  template: TemplateInfo
+): Promise<string | null> {
+  return fetchFromUrl(template.readmeUrl);
+}
+
+function fetchFromUrl(urlString: string): Promise<string | null> {
   return new Promise((resolve) => {
-    const url = new URL(template.url);
+    const url = new URL(urlString);
 
     const options = {
       hostname: url.hostname,

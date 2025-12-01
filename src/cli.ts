@@ -6,7 +6,7 @@ import fs from "fs-extra";
 import path from "path";
 import { fileURLToPath } from "url";
 import boxen from "boxen";
-import { getTemplateByName, fetchTemplateContent } from "./templateFetcher.js";
+import { getTemplateByName, fetchTemplateContent, fetchTemplateReadme } from "./templateFetcher.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -65,6 +65,7 @@ async function main(
     // Determine which template to use
     let useGithubTemplate = false;
     let githubTemplateContent: string | null = null;
+    let githubReadmeContent: string | null = null;
 
     // If not using basic template, try to fetch from GitHub
     if (template !== "basic") {
@@ -72,6 +73,7 @@ async function main(
       const templateInfo = await getTemplateByName(template);
       if (templateInfo) {
         githubTemplateContent = await fetchTemplateContent(templateInfo);
+        githubReadmeContent = await fetchTemplateReadme(templateInfo);
         if (githubTemplateContent) {
           useGithubTemplate = true;
           console.log(
@@ -95,10 +97,15 @@ async function main(
     const templateDir = path.join(__dirname, "..", "template");
     fs.copySync(templateDir, projectPath);
 
-    // If we have GitHub template content, overwrite index.ts
+    // If we have GitHub template content, overwrite index.ts and README.md
     if (useGithubTemplate && githubTemplateContent) {
       const indexPath = path.join(projectPath, "index.ts");
       fs.writeFileSync(indexPath, githubTemplateContent);
+      
+      if (githubReadmeContent) {
+        const readmePath = path.join(projectPath, "README.md");
+        fs.writeFileSync(readmePath, githubReadmeContent);
+      }
     }
 
     // Update package.json name
