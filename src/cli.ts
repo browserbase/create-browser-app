@@ -155,14 +155,16 @@ ${chalk.bold.cyan("5.")} npm start`;
 program
   .name("create-browser-app")
   .description("Start your Stagehand project with a single command")
-  .argument("[name]", "Name of the project", "my-stagehand-app")
+  .argument("[name]", "Name of the project")
   .option(
     "-t, --template <template>",
     "Template to use (basic or GitHub examples: example, cua-example)",
     "basic"
   )
-  .action(async (name: string, options: { template: string }) => {
-    await main(name, options.template).catch((err) => {
+  .action(async (name: string | undefined, options: { template: string }) => {
+    // If no name provided, use template name (or default for basic template)
+    const projectName = name ?? (options.template !== "basic" ? options.template : "my-stagehand-app");
+    await main(projectName, options.template).catch((err) => {
       console.error(chalk.red("Error:"), err);
       process.exit(1);
     });
