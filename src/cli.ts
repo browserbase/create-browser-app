@@ -6,7 +6,7 @@ import fs from "fs-extra";
 import path from "path";
 import { fileURLToPath } from "url";
 import boxen from "boxen";
-import { getTemplateByName, fetchTemplateContent, fetchTemplateReadme } from "./templateFetcher.js";
+import { getTemplateByName, fetchTemplateContent, fetchTemplateReadme, fetchTemplatePackageJson, fetchTemplateEnvExample } from "./templateFetcher.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -66,6 +66,8 @@ async function main(
     let useGithubTemplate = false;
     let githubTemplateContent: string | null = null;
     let githubReadmeContent: string | null = null;
+    let githubPackageJsonContent: string | null = null;
+    let githubEnvExampleContent: string | null = null;
 
     // If not using basic template, try to fetch from GitHub
     if (template !== "basic") {
@@ -74,6 +76,8 @@ async function main(
       if (templateInfo) {
         githubTemplateContent = await fetchTemplateContent(templateInfo);
         githubReadmeContent = await fetchTemplateReadme(templateInfo);
+        githubPackageJsonContent = await fetchTemplatePackageJson(templateInfo);
+        githubEnvExampleContent = await fetchTemplateEnvExample(templateInfo);
         if (githubTemplateContent) {
           useGithubTemplate = true;
           console.log(
@@ -105,6 +109,16 @@ async function main(
       if (githubReadmeContent) {
         const readmePath = path.join(projectPath, "README.md");
         fs.writeFileSync(readmePath, githubReadmeContent);
+      }
+
+      if (githubPackageJsonContent) {
+        const packageJsonPath = path.join(projectPath, "package.json");
+        fs.writeFileSync(packageJsonPath, githubPackageJsonContent);
+      }
+
+      if (githubEnvExampleContent) {
+        const envExamplePath = path.join(projectPath, ".env.example");
+        fs.writeFileSync(envExamplePath, githubEnvExampleContent);
       }
     }
 

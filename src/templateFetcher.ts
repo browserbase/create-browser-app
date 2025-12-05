@@ -6,6 +6,8 @@ interface TemplateInfo {
   path: string;
   url: string;
   readmeUrl: string;
+  packageJsonUrl: string;
+  envExampleUrl: string;
 }
 
 interface GitHubAPIResponse {
@@ -67,6 +69,8 @@ function buildTemplateInfo(name: string): TemplateInfo {
     path: `typescript/${name}/index.ts`,
     url: `https://raw.githubusercontent.com/browserbase/templates/dev/typescript/${name}/index.ts`,
     readmeUrl: `https://raw.githubusercontent.com/browserbase/templates/dev/typescript/${name}/README.md`,
+    packageJsonUrl: `https://raw.githubusercontent.com/browserbase/templates/dev/typescript/${name}/package.json`,
+    envExampleUrl: `https://raw.githubusercontent.com/browserbase/templates/dev/typescript/${name}/.env.example`,
   };
 }
 
@@ -87,6 +91,18 @@ export function fetchTemplateReadme(
   template: TemplateInfo
 ): Promise<string | null> {
   return fetchFromUrl(template.readmeUrl);
+}
+
+export function fetchTemplatePackageJson(
+  template: TemplateInfo
+): Promise<string | null> {
+  return fetchFromUrl(template.packageJsonUrl);
+}
+
+export function fetchTemplateEnvExample(
+  template: TemplateInfo
+): Promise<string | null> {
+  return fetchFromUrl(template.envExampleUrl);
 }
 
 function fetchFromUrl(urlString: string): Promise<string | null> {
