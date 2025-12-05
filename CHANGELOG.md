@@ -1,5 +1,11 @@
 # create-browser-app
 
+## 2.7.0
+
+### Minor Changes
+
+- Add ability to copy package.json and .env.example from GitHub templates when they exist
+
 ## 2.6.0
 
 ### Minor Changes
