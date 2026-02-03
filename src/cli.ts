@@ -6,7 +6,7 @@ import fs from "fs-extra";
 import path from "path";
 import { fileURLToPath } from "url";
 import boxen from "boxen";
-import { getTemplateByName, fetchTemplateContent, fetchTemplateReadme, fetchTemplatePackageJson, fetchTemplateEnvExample } from "./templateFetcher.js";
+import { getTemplateByName, fetchAllTemplateContents } from "./templateFetcher.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -64,24 +64,18 @@ async function main(
 
     // Determine which template to use
     let useGithubTemplate = false;
-    let githubTemplateContent: string | null = null;
-    let githubReadmeContent: string | null = null;
-    let githubPackageJsonContent: string | null = null;
-    let githubEnvExampleContent: string | null = null;
+    let templateFiles = new Map<string, string>();
 
     // If not using basic template, try to fetch from GitHub
     if (template !== "basic") {
       console.log(`Fetching template ${chalk.cyan(template)}...`);
       const templateInfo = await getTemplateByName(template);
       if (templateInfo) {
-        githubTemplateContent = await fetchTemplateContent(templateInfo);
-        githubReadmeContent = await fetchTemplateReadme(templateInfo);
-        githubPackageJsonContent = await fetchTemplatePackageJson(templateInfo);
-        githubEnvExampleContent = await fetchTemplateEnvExample(templateInfo);
-        if (githubTemplateContent) {
+        templateFiles = await fetchAllTemplateContents(template);
+        if (templateFiles.size > 0) {
           useGithubTemplate = true;
           console.log(
-            chalk.green("✓") + ` Using template: ${template}`
+            chalk.green("✓") + ` Using template: ${template} (${templateFiles.size} files)`
           );
         } else {
           console.log(
@@ -101,24 +95,11 @@ async function main(
     const templateDir = path.join(__dirname, "..", "template");
     fs.copySync(templateDir, projectPath);
 
-    // If we have GitHub template content, overwrite index.ts and README.md
-    if (useGithubTemplate && githubTemplateContent) {
-      const indexPath = path.join(projectPath, "index.ts");
-      fs.writeFileSync(indexPath, githubTemplateContent);
-      
-      if (githubReadmeContent) {
-        const readmePath = path.join(projectPath, "README.md");
-        fs.writeFileSync(readmePath, githubReadmeContent);
-      }
-
-      if (githubPackageJsonContent) {
-        const packageJsonPath = path.join(projectPath, "package.json");
-        fs.writeFileSync(packageJsonPath, githubPackageJsonContent);
-      }
-
-      if (githubEnvExampleContent) {
-        const envExamplePath = path.join(projectPath, ".env.example");
-        fs.writeFileSync(envExamplePath, githubEnvExampleContent);
+    // If we have GitHub template files, overwrite with them
+    if (useGithubTemplate && templateFiles.size > 0) {
+      for (const [filename, content] of templateFiles) {
+        const filePath = path.join(projectPath, filename);
+        fs.writeFileSync(filePath, content);
       }
     }
 
