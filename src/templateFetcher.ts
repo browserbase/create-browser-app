@@ -13,113 +13,15 @@ interface GitHubAPIResponse {
   download_url?: string;
 }
 
-
-export function fetchTypeScriptTemplates(): Promise<TemplateInfo[]> {
+/**
+ * Shared helper to fetch contents from a GitHub API path.
+ * Returns parsed array of items (files and directories).
+ */
+function fetchGitHubContents(apiPath: string): Promise<GitHubAPIResponse[]> {
   return new Promise((resolve) => {
     const options = {
       hostname: "api.github.com",
-      path: "/repos/browserbase/templates/contents/typescript",
-      method: "GET",
-      headers: {
-        "User-Agent": "create-browser-app",
-        "Accept": "application/vnd.github+json",
-      },
-    };
-
-    https
-      .get(options, (res) => {
-        let data = "";
-
-        if (res.statusCode !== 200) {
-          resolve([]);
-          return;
-        }
-
-        res.on("data", (chunk) => {
-          data += chunk;
-        });
-
-        res.on("end", () => {
-          try {
-            const items: GitHubAPIResponse[] = JSON.parse(data);
-            const templates = items
-              .filter((item) => item.type === "dir")
-              .map((item) => buildTemplateInfo(item.name));
-            resolve(templates);
-          } catch (error) {
-            resolve([]);
-          }
-        });
-      })
-      .on("error", () => {
-        resolve([]);
-      });
-  });
-}
-
-/**
- * Builds a TemplateInfo object from a template name (directory slug)
- */
-function buildTemplateInfo(name: string): TemplateInfo {
-  return {
-    name,
-    path: `typescript/${name}`,
-  };
-}
-
-export async function getTemplateByName(
-  name: string
-): Promise<TemplateInfo | undefined> {
-  const templates = await fetchTypeScriptTemplates();
-  return templates.find((t) => t.name === name);
-}
-
-function fetchFromUrl(urlString: string): Promise<string | null> {
-  return new Promise((resolve) => {
-    const url = new URL(urlString);
-
-    const options = {
-      hostname: url.hostname,
-      path: url.pathname + url.search,
-      method: "GET",
-      headers: {
-        "User-Agent": "create-browser-app",
-      },
-    };
-
-    https
-      .get(options, (res) => {
-        let data = "";
-
-        if (res.statusCode !== 200) {
-          resolve(null);
-          return;
-        }
-
-        res.on("data", (chunk) => {
-          data += chunk;
-        });
-
-        res.on("end", () => {
-          resolve(data);
-        });
-      })
-      .on("error", () => {
-        resolve(null);
-      });
-  });
-}
-
-/**
- * Fetches the list of all files in a template directory from GitHub
- */
-export function fetchTemplateFiles(
-  templateName: string
-): Promise<GitHubAPIResponse[]> {
-  return new Promise((resolve) => {
-    const options = {
-      hostname: "api.github.com",
-      path: `/repos/browserbase/templates/contents/typescript/${templateName}`,
+      path: apiPath,
       method: "GET",
       headers: {
         "User-Agent": "create-browser-app",
@@ -143,9 +45,7 @@ export function fetchTemplateFiles(
         res.on("end", () => {
           try {
             const items: GitHubAPIResponse[] = JSON.parse(data);
-            // Filter to only include files (not directories)
-            const files = items.filter((item) => item.type === "file");
-            resolve(files);
+            resolve(items);
           } catch (error) {
             resolve([]);
           }
@@ -157,22 +57,122 @@ export function fetchTemplateFiles(
   });
 }
 
+export async function fetchTypeScriptTemplates(): Promise<TemplateInfo[]> {
+  const items = await fetchGitHubContents(
+    "/repos/browserbase/templates/contents/typescript"
+  );
+  return items
+    .filter((item) => item.type === "dir")
+    .map((item) => buildTemplateInfo(item.name));
+}
+
 /**
- * Fetches all file contents from a template directory
- * Returns a Map of filename -> content
+ * Builds a TemplateInfo object from a template name (directory slug)
+ */
+function buildTemplateInfo(name: string): TemplateInfo {
+  return {
+    name,
+    path: `typescript/${name}`,
+  };
+}
+
+export async function getTemplateByName(
+  name: string
+): Promise<TemplateInfo | undefined> {
+  const templates = await fetchTypeScriptTemplates();
+  return templates.find((t) => t.name === name);
+}
+
+function fetchFromUrl(urlString: string): Promise<Buffer | null> {
+  return new Promise((resolve) => {
+    const url = new URL(urlString);
+
+    const options = {
+      hostname: url.hostname,
+      path: url.pathname + url.search,
+      method: "GET",
+      headers: {
+        "User-Agent": "create-browser-app",
+      },
+    };
+
+    https
+      .get(options, (res) => {
+        const chunks: Buffer[] = [];
+
+        if (res.statusCode !== 200) {
+          resolve(null);
+          return;
+        }
+
+        res.on("data", (chunk: Buffer) => {
+          chunks.push(chunk);
+        });
+
+        res.on("end", () => {
+          resolve(Buffer.concat(chunks));
+        });
+      })
+      .on("error", () => {
+        resolve(null);
+      });
+  });
+}
+
+/**
+ * Recursively fetches all files from a GitHub directory, descending into subdirectories.
+ */
+async function fetchFilesRecursive(
+  apiPath: string
+): Promise<GitHubAPIResponse[]> {
+  const items = await fetchGitHubContents(apiPath);
+  const files: GitHubAPIResponse[] = [];
+
+  for (const item of items) {
+    if (item.type === "file") {
+      files.push(item);
+    } else if (item.type === "dir") {
+      const subFiles = await fetchFilesRecursive(
+        `/repos/browserbase/templates/contents/${item.path}`
+      );
+      files.push(...subFiles);
+    }
+  }
+
+  return files;
+}
+
+/**
+ * Fetches the list of all files in a template directory from GitHub (recursively)
+ */
+export function fetchTemplateFiles(
+  templateName: string
+): Promise<GitHubAPIResponse[]> {
+  return fetchFilesRecursive(
+    `/repos/browserbase/templates/contents/typescript/${templateName}`
+  );
+}
+
+/**
+ * Fetches all file contents from a template directory (recursively)
+ * Returns a Map of relative path -> content buffer
  */
 export async function fetchAllTemplateContents(
   templateName: string
-): Promise<Map<string, string>> {
+): Promise<Map<string, Buffer>> {
   const files = await fetchTemplateFiles(templateName);
-  const contents = new Map<string, string>();
+  const contents = new Map<string, Buffer>();
+  const prefix = `typescript/${templateName}/`;
 
   // Fetch all files in parallel
   const fetchPromises = files.map(async (file) => {
     if (file.download_url) {
       const content = await fetchFromUrl(file.download_url);
       if (content !== null) {
-        contents.set(file.name, content);
+        const relativePath = file.path.startsWith(prefix)
+          ? file.path.slice(prefix.length)
+          : file.name;
+        contents.set(relativePath, content);
       }
     }
   });

@@ -64,7 +64,7 @@ async function main(
 
     // Determine which template to use
     let useGithubTemplate = false;
-    let templateFiles = new Map<string, string>();
+    let templateFiles = new Map<string, Buffer>();
 
     // If not using basic template, try to fetch from GitHub
     if (template !== "basic") {
@@ -99,6 +99,7 @@ async function main(
     if (useGithubTemplate && templateFiles.size > 0) {
       for (const [filename, content] of templateFiles) {
         const filePath = path.join(projectPath, filename);
+        fs.mkdirSync(path.dirname(filePath), { recursive: true });
         fs.writeFileSync(filePath, content);
       }
     }
