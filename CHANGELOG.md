@@ -1,5 +1,11 @@
 # create-browser-app
 
+## 2.7.2
+
+### Patch Changes
+
+- Fix recursive template fetching to dynamically fetch all files from template directories
+
 ## 2.7.0
 
 ### Minor Changes
