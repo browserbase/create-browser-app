@@ -128,18 +128,18 @@ async function fetchFilesRecursive(
   const items = await fetchGitHubContents(apiPath);
   const files: GitHubAPIResponse[] = [];
 
-  for (const item of items) {
-    if (item.type === "file") {
-      files.push(item);
-    } else if (item.type === "dir") {
-      const subFiles = await fetchFilesRecursive(
-        `/repos/browserbase/templates/contents/${item.path}`
-      );
-      files.push(...subFiles);
-    }
-  }
+  const fileItems = items.filter((item) => item.type === "file");
+  const dirItems = items.filter((item) => item.type === "dir");
 
-  return files;
+  const subResults = await Promise.all(
+    dirItems.map((item) =>
+      fetchFilesRecursive(
+        `/repos/browserbase/templates/contents/${item.path}`
+      )
+    )
+  );
+
+  return [...fileItems, ...subResults.flat()];
 }
 
 /**
