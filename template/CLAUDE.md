@@ -1,3 +1,5 @@
+@AGENTS.md
+
 # Stagehand Project
 
 This is a project that uses Stagehand V3, a browser automation framework with AI-powered `act`, `extract`, `observe`, and `agent` methods.
