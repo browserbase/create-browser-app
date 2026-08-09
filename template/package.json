@@ -7,7 +7,7 @@
     "start": "tsx index.ts"
   },
   "dependencies": {
-    "@browserbasehq/stagehand": "github:browserbase/stagehand#089f2aaeaea75696685949e0835aece95db54358&path:/packages/sdk-ts",
+    "@browserbasehq/stagehand": "github:browserbase/stagehand#4186c7d98d2f325b6fc85b3f760111e6c390d703&path:/packages/sdk-ts",
     "dotenv": "^16.4.7"
   },
   "devDependencies": {

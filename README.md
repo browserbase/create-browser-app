@@ -1,6 +1,6 @@
 # Create Browser App
 
-A CLI tool to quickly create browser automation applications using [Browserbase](https://browserbase.com) and [Stagehand](https://stagehand.dev).
+A CLI tool to quickly create browser agents with [Browserbase](https://browserbase.com) and [Stagehand](https://stagehand.dev).
 
 ## Features
 

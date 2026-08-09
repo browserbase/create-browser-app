@@ -1,12 +1,12 @@
 # Stagehand Project
 
-This is a project that uses Stagehand V4, a browser automation framework with AI-powered `act`, `extract`, and `observe` methods.
+This project uses Stagehand V4, the SDK for browser agents, with AI-powered `act`, `extract`, and `observe` methods.
 
-The main class can be imported as `Stagehand` from `@browserbasehq/stagehand`.
+The Stagehand client can be imported from `@browserbasehq/stagehand`.
 
 **Key Classes:**
 
-- `Stagehand`: Main orchestrator class providing `act`, `extract`, and `observe` methods
+- `Stagehand`: Client providing `act`, `extract`, and `observe` methods
 - `context`: A `BrowserContext` object accessed through `browser.context` that manages pages
 - `page`: Individual page objects accessed via `(await browser.context.pages())[i]` or created with `browser.context.newPage()`
 
@@ -150,7 +150,7 @@ const { data } = await stagehand.extract(
 
 ## Observe
 
-Plan actions before executing them. Returns an array of candidate actions in `data`:
+Discover candidate actions before executing them. Returns an array of actions in `data`:
 
 ```typescript
 // Get candidate actions on the current active page

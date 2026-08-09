@@ -27,7 +27,7 @@ function showLogo() {
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀`)
   );
   console.log(chalk.yellow.bold("Stagehand"));
-  console.log(chalk.dim("The AI Browser Framework\n"));
+  console.log(chalk.dim("The SDK for Browser Agents\n"));
 }
 
 async function main(

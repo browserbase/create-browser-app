@@ -2,15 +2,15 @@
 
 Hey! This is a project built with [Stagehand](https://github.com/browserbase/stagehand).
 
-You can build your own web agent using: `npx create-browser-app`!
+You can build your own browser agent using `npx create-browser-app`.
 
 ## Setting the Stage
 
-Stagehand V4 is an SDK for browser agents. It drives browsers directly over the Chrome DevTools Protocol and combines deterministic browser primitives with AI-powered `act`, `observe`, and `extract` methods.
+Stagehand is the SDK for browser agents. V4 combines deterministic code with AI-powered browser primitives, so you control which steps run as plain selectors and which ones call a model.
 
 ## Curtain Call
 
-Stagehand V4 requires Node.js 22.18 or newer. Get ready for a show-stopping development experience:
+Stagehand V4 requires Node.js 22.18 or newer. Install dependencies, then run the example:
 
 ```bash
 pnpm install
