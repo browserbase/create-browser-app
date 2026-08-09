@@ -127,10 +127,10 @@ async function main(
 
     // Styled next steps
     const nextSteps = `${chalk.bold.cyan("1.")} cd ${projectDir}
-${chalk.bold.cyan("2.")} npm install
+${chalk.bold.cyan("2.")} pnpm install
 ${chalk.bold.cyan("3.")} cp .env.example .env
 ${chalk.bold.cyan("4.")} ${chalk.dim("Add your Browserbase API key to .env")}
-${chalk.bold.cyan("5.")} npm start`;
+${chalk.bold.cyan("5.")} pnpm start`;
 
     console.log(
       boxen(nextSteps, {

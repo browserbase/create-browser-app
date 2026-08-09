@@ -1,43 +1,53 @@
 import "dotenv/config";
-import { Stagehand } from "@browserbasehq/stagehand";
+import { browserbase, Stagehand } from "@browserbasehq/stagehand";
 
 async function main() {
-  const stagehand = new Stagehand({
-    env: "BROWSERBASE",
+  const apiKey = process.env.BROWSERBASE_API_KEY;
+  if (!apiKey) {
+    throw new Error("BROWSERBASE_API_KEY is required");
+  }
+
+  const browser = await browserbase.launch({
+    apiKey,
   });
 
-  await stagehand.init();
+  try {
+    const stagehand = await Stagehand.create({ browser });
 
-  console.log(`Stagehand Session Started`);
-  console.log(
-    `Watch live: https://browserbase.com/sessions/${stagehand.browserbaseSessionId}`
-  );
+    try {
+      console.log("Stagehand session started");
 
-  const page = stagehand.context.pages()[0];
+      const [page] = await browser.context.pages();
+      if (!page) {
+        throw new Error("No page was created for the browser session");
+      }
 
-  await page.goto("https://stagehand.dev");
+      await page.goto("https://example.com");
 
-  const extractResult = await stagehand.extract(
-    "Extract the value proposition from the page."
-  );
-  console.log(`Extract result:\n`, extractResult);
+      const extractResult = await stagehand.extract(
+        "Extract the page heading and description."
+      );
+      console.log("Extract result:\n", extractResult.data);
 
-  const actResult = await stagehand.act("Click the 'Evals' button.");
-  console.log(`Act result:\n`, actResult);
+      const observeResult = await stagehand.observe(
+        "Find the link that provides more information."
+      );
+      console.log("Observe result:\n", observeResult.data);
 
-  const observeResult = await stagehand.observe("What can I click on this page?");
-  console.log(`Observe result:\n`, observeResult);
+      const actResult = await stagehand.act(
+        "Click the link that provides more information."
+      );
+      console.log("Act result:\n", actResult.data);
 
-  const agent = stagehand.agent({
-    systemPrompt: "You're a helpful assistant that can control a web browser.",
-  });
-
-  const agentResult = await agent.execute(
-    "What is the most accurate model to use in Stagehand?"
-  );
-  console.log(`Agent result:\n`, agentResult);
-
-  await stagehand.close();
+      if (!actResult.data.success) {
+        throw new Error(`act() failed: ${actResult.data.message}`);
+      }
+    } finally {
+      await stagehand.close();
+    }
+  } finally {
+    await browser.close();
+  }
 }
 
 main().catch((err) => {

@@ -47,14 +47,13 @@ After creating your project:
 
 ```bash
 cd my-project-name
-npm install
+pnpm install
 cp .env.example .env
 # Add your Browserbase API key to .env
-npm start
+pnpm start
 ```
 
 ## Learn More
 
 - [Stagehand Documentation](https://docs.stagehand.dev)
 - [Browserbase Documentation](https://docs.browserbase.com)
-
