@@ -1,5 +1,6 @@
 import "dotenv/config";
 import { browserbase, Stagehand } from "@browserbasehq/stagehand";
+import { z } from "zod/v4";
 
 async function main() {
   const apiKey = process.env.BROWSERBASE_API_KEY;
@@ -25,7 +26,11 @@ async function main() {
       await page.goto("https://example.com");
 
       const extractResult = await stagehand.extract(
-        "Extract the page heading and description."
+        "Extract the page heading and description.",
+        z.object({
+          heading: z.string(),
+          description: z.string(),
+        })
       );
       console.log("Extract result:\n", extractResult.data);
 
@@ -34,9 +39,12 @@ async function main() {
       );
       console.log("Observe result:\n", observeResult.data);
 
-      const actResult = await stagehand.act(
-        "Click the link that provides more information."
-      );
+      const [moreInfoAction] = observeResult.data;
+      if (moreInfoAction?.method !== "click") {
+        throw new Error("Could not find the expected link action");
+      }
+
+      const actResult = await stagehand.act(moreInfoAction);
       console.log("Act result:\n", actResult.data);
 
       if (!actResult.data.success) {

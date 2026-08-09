@@ -7,16 +7,21 @@ The Stagehand client can be imported from `@browserbasehq/stagehand`.
 **Key Classes:**
 
 - `Stagehand`: Client providing `act`, `extract`, and `observe` methods
-- `context`: A `BrowserContext` object accessed through `browser.context` that manages pages
-- `page`: Individual page objects accessed via `(await browser.context.pages())[i]` or created with `browser.context.newPage()`
+- `browser.context`: A `BrowserContext` object that manages pages, cookies, and the clipboard
+- `page`: Individual page objects accessed via `browser.context.activePage()`, `browser.context.pages()`, or created with `browser.context.newPage()`
 
 ## Initialize
 
 ```typescript
 import { browserbase, Stagehand } from "@browserbasehq/stagehand";
 
+const apiKey = process.env.BROWSERBASE_API_KEY;
+if (!apiKey) {
+  throw new Error("BROWSERBASE_API_KEY is required");
+}
+
 const browser = await browserbase.launch({
-  apiKey: process.env.BROWSERBASE_API_KEY,
+  apiKey,
 });
 
 const stagehand = await Stagehand.create({
@@ -25,7 +30,10 @@ const stagehand = await Stagehand.create({
 });
 
 // Access the browser context and pages
-const page = (await browser.context.pages())[0];
+const [page] = await browser.context.pages();
+if (!page) {
+  throw new Error("Stagehand initialized without an active page");
+}
 const context = browser.context;
 
 // Create new pages if needed
@@ -34,7 +42,7 @@ const page2 = await browser.context.newPage();
 
 ## Act
 
-Actions are called on the `stagehand` instance (not the page). Use atomic, specific instructions:
+Actions are called on the `stagehand` instance (not the page). `act` accepts either a string instruction or an `Action` returned by `observe`. Use atomic, specific instructions:
 
 ```typescript
 // Act on the current active page
@@ -51,16 +59,18 @@ await stagehand.act("click the sign in button", { page: page2 });
 
 ### Observe + Act Pattern (Recommended)
 
-Cache the results of `observe` to avoid unexpected DOM changes:
+Use `observe` to inspect a candidate action, then pass it to `act` for deterministic replay with no inference:
 
 ```typescript
 const instruction = "Click the sign in button";
 
 // Get candidate actions
 const { data: actions } = await stagehand.observe(instruction);
+const [action] = actions;
 
-// Execute the first action
-await stagehand.act(actions[0]);
+if (action?.method === "click") {
+  await stagehand.act(action);
+}
 ```
 
 To target a specific page:
@@ -69,12 +79,16 @@ To target a specific page:
 const { data: actions } = await stagehand.observe("select blue as the favorite color", {
   page: page2,
 });
-await stagehand.act(actions[0], { page: page2 });
+const [action] = actions;
+
+if (action) {
+  await stagehand.act(action, { page: page2 });
+}
 ```
 
 ## Extract
 
-Extract data from pages using natural language instructions. The `extract` method is called on the `stagehand` instance.
+Extract data from pages using natural language instructions. The `extract` method is called on the `stagehand` instance and always takes both an instruction and a schema.
 
 ### Basic Extraction (with schema)
 
@@ -97,20 +111,15 @@ const { data } = await stagehand.extract(
 console.log(data.listings);
 ```
 
-### Simple Extraction (without schema)
+### Simple Extraction
 
 ```typescript
-// Extract returns a default object with 'extraction' field
-const result = await stagehand.extract("extract the sign in button text");
+const { data } = await stagehand.extract(
+  "extract the sign in button text",
+  z.object({ buttonText: z.string() }),
+);
 
-console.log(result.data);
-// Output: { extraction: "Sign in" }
-
-// Or destructure directly
-const {
-  data: { extraction },
-} = await stagehand.extract("extract the sign in button text");
-console.log(extraction); // "Sign in"
+console.log(data.buttonText); // "Sign in"
 ```
 
 ### Targeted Extraction
@@ -118,22 +127,24 @@ console.log(extraction); // "Sign in"
 Extract data from a specific element using a selector:
 
 ```typescript
-const { data: reason } = await stagehand.extract(
+const { data } = await stagehand.extract(
   "extract the reason why script injection fails",
-  z.string(),
+  z.object({ reason: z.string() }),
   { selector: "#script-injection-error" },
 );
+
+console.log(data.reason);
 ```
 
 ### URL Extraction
 
-When extracting links or URLs, use `z.string().url()`:
+When extracting links or URLs, use `z.url()`:
 
 ```typescript
 const { data: { links } } = await stagehand.extract(
   "extract all navigation links",
   z.object({
-    links: z.array(z.string().url()),
+    links: z.array(z.url()),
   }),
 );
 ```
@@ -144,6 +155,7 @@ const { data: { links } } = await stagehand.extract(
 // Extract from a specific page (when you need to target a page that isn't currently active)
 const { data } = await stagehand.extract(
   "extract the placeholder text on the name field",
+  z.object({ placeholder: z.string() }),
   { page: page2 },
 );
 ```
@@ -154,10 +166,12 @@ Discover candidate actions before executing them. Returns an array of actions in
 
 ```typescript
 // Get candidate actions on the current active page
-const { data: [action] } = await stagehand.observe("Click the sign in button");
+const { data: actions } = await stagehand.observe("Click the sign in button");
+const [action] = actions;
 
-// Execute the action
-await stagehand.act(action);
+if (action) {
+  console.log(action.selector, action.method, action.arguments);
+}
 ```
 
 Observing on a specific page:
@@ -167,7 +181,11 @@ Observing on a specific page:
 const { data: actions } = await stagehand.observe("find the next page button", {
   page: page2,
 });
-await stagehand.act(actions[0], { page: page2 });
+const [action] = actions;
+
+if (action) {
+  await stagehand.act(action, { page: page2 });
+}
 ```
 
 ## Advanced Features
@@ -178,7 +196,7 @@ Target specific elements across shadow DOM and iframes:
 
 ```typescript
 await page
-  .locator("/html/body/div[2]/div[3]/iframe/html/body/p")
+  .locator("xpath=/html/body/div[2]/div[3]/iframe/html/body/p")
   .highlight({
     durationMs: 5000,
     contentColor: { r: 255, g: 0, b: 0 },
@@ -188,14 +206,15 @@ await page
 ### Multi-Page Workflows
 
 ```typescript
-const page1 = (await browser.context.pages())[0];
-await page1.goto("https://example.com");
-
-const page2 = await browser.context.newPage();
-await page2.goto("https://example2.com");
+const page1 = await browser.context.newPage("https://example.com");
+const page2 = await browser.context.newPage("https://example2.com");
 
 // Act/extract/observe operate on the current active page by default
 // Pass { page } option to target a specific page
 await stagehand.act("click button", { page: page1 });
-await stagehand.extract("get title", { page: page2 });
+await stagehand.extract(
+  "get title",
+  z.object({ title: z.string() }),
+  { page: page2 },
+);
 ```
