@@ -1,95 +1,201 @@
-# Stagehand V4 Project
+# Stagehand Project
 
-This project uses Stagehand V4, a browser-agent SDK with deterministic browser APIs and AI-powered `act`, `observe`, and `extract` methods.
+This is a project that uses Stagehand V4, a browser automation framework with AI-powered `act`, `extract`, and `observe` methods.
 
-## Core lifecycle
+The main class can be imported as `Stagehand` from `@browserbasehq/stagehand`.
 
-Create the browser first, then attach Stagehand asynchronously:
+**Key Classes:**
 
-```ts
+- `Stagehand`: Main orchestrator class providing `act`, `extract`, and `observe` methods
+- `context`: A `BrowserContext` object accessed through `browser.context` that manages pages
+- `page`: Individual page objects accessed via `(await browser.context.pages())[i]` or created with `browser.context.newPage()`
+
+## Initialize
+
+```typescript
 import { browserbase, Stagehand } from "@browserbasehq/stagehand";
 
 const browser = await browserbase.launch({
   apiKey: process.env.BROWSERBASE_API_KEY,
 });
-const stagehand = await Stagehand.create({ browser });
 
-try {
-  const [page] = await browser.context.pages();
-  await page.goto("https://example.com");
-} finally {
-  await stagehand.close();
-  await browser.close();
-}
+const stagehand = await Stagehand.create({
+  browser,
+  logging: { level: "debug" },
+});
+
+// Access the browser context and pages
+const page = (await browser.context.pages())[0];
+const context = browser.context;
+
+// Create new pages if needed
+const page2 = await browser.context.newPage();
 ```
 
-Use `localBrowser.launch()` instead of `browserbase.launch()` for a local Chrome session. A local session also needs an explicit model in `Stagehand.create()` because it cannot use Browserbase Model Gateway.
+## Act
 
-## Stagehand primitives
+Actions are called on the `stagehand` instance (not the page). Use atomic, specific instructions:
 
-Call AI primitives on the Stagehand instance. Every result uses a `{ data, metadata }` envelope.
+```typescript
+// Act on the current active page
+await stagehand.act("click the sign in button");
 
-```ts
-const action = await stagehand.act("Click the sign-in button");
-if (!action.data.success) {
-  throw new Error(action.data.message);
-}
-
-const actions = await stagehand.observe("Find the submit button");
-if (actions.data.length > 0) {
-  await stagehand.act(actions.data[0]);
-}
-
-const result = await stagehand.extract("Extract the page title");
-console.log(result.data.extraction);
+// Act on a specific page (when you need to target a page that isn't currently active)
+await stagehand.act("click the sign in button", { page: page2 });
 ```
 
-For typed extraction, pass a Zod V4 schema as the second argument:
+**Important:** Act instructions should be atomic and specific:
 
-```ts
+- ✅ Good: "Click the sign in button" or "Type 'hello' into the search input"
+- ❌ Bad: "Order me pizza" or "Type in the search bar and hit enter" (multi-step)
+
+### Observe + Act Pattern (Recommended)
+
+Cache the results of `observe` to avoid unexpected DOM changes:
+
+```typescript
+const instruction = "Click the sign in button";
+
+// Get candidate actions
+const { data: actions } = await stagehand.observe(instruction);
+
+// Execute the first action
+await stagehand.act(actions[0]);
+```
+
+To target a specific page:
+
+```typescript
+const { data: actions } = await stagehand.observe("select blue as the favorite color", {
+  page: page2,
+});
+await stagehand.act(actions[0], { page: page2 });
+```
+
+## Extract
+
+Extract data from pages using natural language instructions. The `extract` method is called on the `stagehand` instance.
+
+### Basic Extraction (with schema)
+
+```typescript
 import { z } from "zod/v4";
 
-const result = await stagehand.extract(
-  "Extract the product name and price",
+// Extract with explicit schema
+const { data } = await stagehand.extract(
+  "extract all apartment listings with prices and addresses",
   z.object({
-    name: z.string(),
-    price: z.number(),
-  })
+    listings: z.array(
+      z.object({
+        price: z.string(),
+        address: z.string(),
+      }),
+    ),
+  }),
 );
 
-console.log(result.data.name, result.data.price);
+console.log(data.listings);
 ```
 
-Pass `{ page }` in the options when targeting a page other than the active page:
+### Simple Extraction (without schema)
 
-```ts
-await stagehand.act("Click the next button", { page: anotherPage });
+```typescript
+// Extract returns a default object with 'extraction' field
+const result = await stagehand.extract("extract the sign in button text");
+
+console.log(result.data);
+// Output: { extraction: "Sign in" }
+
+// Or destructure directly
+const {
+  data: { extraction },
+} = await stagehand.extract("extract the sign in button text");
+console.log(extraction); // "Sign in"
 ```
 
-## Browser and page APIs
+### Targeted Extraction
 
-Use the browser handle for contexts and pages:
+Extract data from a specific element using a selector:
 
-```ts
-const pages = await browser.context.pages();
-const page = await browser.context.newPage("https://example.com");
-await browser.context.setActivePage(page);
+```typescript
+const { data: reason } = await stagehand.extract(
+  "extract the reason why script injection fails",
+  z.string(),
+  { selector: "#script-injection-error" },
+);
 ```
 
-Use deterministic APIs when you know the exact interaction:
+### URL Extraction
 
-```ts
-await page.locator("button[type=submit]").click();
-await page.locator("input[name=email]").fill("user@example.com");
-await page.waitForTimeout(500);
+When extracting links or URLs, use `z.string().url()`:
+
+```typescript
+const { data: { links } } = await stagehand.extract(
+  "extract all navigation links",
+  z.object({
+    links: z.array(z.string().url()),
+  }),
+);
 ```
 
-Stagehand V4 drives Chrome directly over CDP. Do not use Playwright or Puppeteer page objects with this SDK.
+### Extracting from a Specific Page
 
-## V4 differences to remember
+```typescript
+// Extract from a specific page (when you need to target a page that isn't currently active)
+const { data } = await stagehand.extract(
+  "extract the placeholder text on the name field",
+  { page: page2 },
+);
+```
 
-- Do not call `new Stagehand()` or `stagehand.init()`; use `await Stagehand.create({ browser })`.
-- Do not access `stagehand.context`; use `browser.context`.
-- Do not expect raw values from AI primitives; read `result.data`.
-- Stagehand V4 has no autonomous `agent()` API. Implement multi-step flows in application control flow.
-- Close Stagehand and the browser separately.
+## Observe
+
+Plan actions before executing them. Returns an array of candidate actions in `data`:
+
+```typescript
+// Get candidate actions on the current active page
+const { data: [action] } = await stagehand.observe("Click the sign in button");
+
+// Execute the action
+await stagehand.act(action);
+```
+
+Observing on a specific page:
+
+```typescript
+// Target a specific page (when you need to target a page that isn't currently active)
+const { data: actions } = await stagehand.observe("find the next page button", {
+  page: page2,
+});
+await stagehand.act(actions[0], { page: page2 });
+```
+
+## Advanced Features
+
+### Locator (XPath Targeting)
+
+Target specific elements across shadow DOM and iframes:
+
+```typescript
+await page
+  .locator("/html/body/div[2]/div[3]/iframe/html/body/p")
+  .highlight({
+    durationMs: 5000,
+    contentColor: { r: 255, g: 0, b: 0 },
+  });
+```
+
+### Multi-Page Workflows
+
+```typescript
+const page1 = (await browser.context.pages())[0];
+await page1.goto("https://example.com");
+
+const page2 = await browser.context.newPage();
+await page2.goto("https://example2.com");
+
+// Act/extract/observe operate on the current active page by default
+// Pass { page } option to target a specific page
+await stagehand.act("click button", { page: page1 });
+await stagehand.extract("get title", { page: page2 });
+```
