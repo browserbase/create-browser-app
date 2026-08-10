@@ -1,5 +1,11 @@
 # create-browser-app
 
+## 3.0.0
+
+### Major Changes
+
+- 741073a: Update the basic starter to Stagehand V4's browser factories, async creation lifecycle, result envelopes, and supported primitives.
+
 ## 2.7.2
 
 ### Patch Changes
