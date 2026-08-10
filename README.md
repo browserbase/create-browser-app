@@ -1,6 +1,6 @@
 # Create Browser App
 
-A CLI tool to quickly create browser automation applications using [Browserbase](https://browserbase.com) and [Stagehand](https://stagehand.dev).
+A CLI tool to quickly create browser agents with [Browserbase](https://browserbase.com) and [Stagehand](https://stagehand.dev).
 
 ## Features
 
@@ -47,14 +47,13 @@ After creating your project:
 
 ```bash
 cd my-project-name
-npm install
+pnpm install
 cp .env.example .env
 # Add your Browserbase API key to .env
-npm start
+pnpm start
 ```
 
 ## Learn More
 
 - [Stagehand Documentation](https://docs.stagehand.dev)
 - [Browserbase Documentation](https://docs.browserbase.com)
-

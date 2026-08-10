@@ -2,18 +2,19 @@
 
 Hey! This is a project built with [Stagehand](https://github.com/browserbase/stagehand).
 
-You can build your own web agent using: `npx create-browser-app`!
+You can build your own browser agent using `npx create-browser-app`.
 
 ## Setting the Stage
 
-Stagehand is an SDK for automating browsers. It's built on top of [Playwright](https://playwright.dev/) and provides a higher-level API for better debugging and AI fail-safes.
+Stagehand is the SDK for browser agents. V4 combines deterministic code with AI-powered browser primitives, so you control which steps run as plain selectors and which ones call a model.
 
 ## Curtain Call
 
-Get ready for a show-stopping development experience. Just run:
+Stagehand V4 requires Node.js 22.18 or newer. Install dependencies, then run the example:
 
 ```bash
-npm start
+pnpm install
+pnpm start
 ```
 
 ## What's Next?
@@ -26,10 +27,10 @@ Required API keys/environment variables are in the `.env.example` file. Copy it 
 cp .env.example .env && nano .env # Add your API keys to .env
 ```
 
-### Custom .cursorrules
+### Stagehand guidance
 
-We have custom .cursorrules for this project. It'll help quite a bit with writing Stagehand easily.
+This project includes Stagehand V4 guidance for coding agents in `.cursorrules` and `claude.md`.
 
-### Run on Local
+### Browser lifecycle
 
-To run on a local browser, add your API keys to .env and change `env: "LOCAL"` to `env: "BROWSERBASE"` in [stagehand.config.ts](stagehand.config.ts).
+V4 separates the browser from the Stagehand client: launch a browser with `browserbase.launch()`, attach it with `Stagehand.create()`, and close both objects when the run finishes. To run Chrome locally instead, use `localBrowser.launch()` and provide a model when creating Stagehand.

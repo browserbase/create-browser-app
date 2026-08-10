@@ -6,11 +6,16 @@
     "start": "tsx index.ts"
   },
   "dependencies": {
-    "@browserbasehq/stagehand": "latest",
-    "dotenv": "^16.4.7"
+    "@browserbasehq/stagehand": "4.0.0",
+    "dotenv": "^16.4.7",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "tsx": "^4.19.2",
     "typescript": "^5.0.0"
-  }
+  },
+  "engines": {
+    "node": ">=22.18.0"
+  },
+  "packageManager": "pnpm@10.24.0"
 }
