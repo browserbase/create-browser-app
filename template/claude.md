@@ -124,13 +124,13 @@ console.log(data.buttonText); // "Sign in"
 
 ### Targeted Extraction
 
-Extract data from a specific element using a selector:
+Extract data from a specific element using a locator:
 
 ```typescript
 const { data } = await stagehand.extract(
   "extract the reason why script injection fails",
   z.object({ reason: z.string() }),
-  { selector: "#script-injection-error" },
+  { locator: page.locator("#script-injection-error") },
 );
 
 console.log(data.reason);

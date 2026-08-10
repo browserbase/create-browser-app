@@ -1,13 +1,12 @@
 {
   "name": "my-stagehand-app",
   "type": "module",
-  "//": "TODO: Replace this commit pin with @browserbasehq/stagehand@4.0.0 after it is published.",
   "scripts": {
     "build": "tsc",
     "start": "tsx index.ts"
   },
   "dependencies": {
-    "@browserbasehq/stagehand": "github:browserbase/stagehand#4186c7d98d2f325b6fc85b3f760111e6c390d703&path:/packages/sdk-ts",
+    "@browserbasehq/stagehand": "4.0.0",
     "dotenv": "^16.4.7",
     "zod": "^4.4.3"
   },
