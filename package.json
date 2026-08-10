@@ -2,6 +2,10 @@
   "name": "create-browser-app",
   "version": "2.7.2",
   "description": "",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/browserbase/create-browser-app.git"
+  },
   "bin": {
     "create-browser-app": "./dist/cli.js"
   },
