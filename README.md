@@ -40,7 +40,10 @@ Available templates:
 - `basic` (default) - Basic Stagehand project setup
 - Additional templates are automatically fetched from the [browserbase/templates](https://github.com/browserbase/templates/tree/dev/typescript) repository
 
-Examples include: `form-filling`, `gift-finder`, `pickleball`, `license-verification`, `context`, `proxies`, `gemini-cua`, and more
+Examples include: `form-filling`, `gift-finder`, `pickleball`, `license-verification`, `context`, `proxies`, `gemini-cua`, `quickstart-playwright`, `quickstart-puppeteer`, `quickstart-selenium`, and more.
+
+Template names must match an available template. An unknown name exits with an error instead of silently generating the basic starter.
+
 ### Getting Started
 
 After creating your project:

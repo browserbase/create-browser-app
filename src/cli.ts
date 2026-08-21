@@ -59,9 +59,6 @@ async function main(
   try {
     console.log(`Creating ${chalk.bold.cyan(projectDir)}...\n`);
 
-    // Create directories
-    fs.mkdirSync(projectPath, { recursive: true });
-
     // Determine which template to use
     let useGithubTemplate = false;
     let templateFiles = new Map<string, Buffer>();
@@ -78,30 +75,29 @@ async function main(
             chalk.green("✓") + ` Using template: ${template} (${templateFiles.size} files)`
           );
         } else {
-          console.log(
-            chalk.yellow("⚠") +
-              ` Could not fetch template, using basic template`
-          );
+          throw new Error(`Template '${template}' contains no files`);
         }
       } else {
-        console.log(
-          chalk.yellow("⚠") +
-            ` Template '${template}' not found, using basic template`
-        );
+        throw new Error(`Template '${template}' not found`);
       }
     }
 
-    // Copy template directory to project directory
-    const templateDir = path.join(__dirname, "..", "template");
-    fs.copySync(templateDir, projectPath);
+    fs.mkdirSync(projectPath, { recursive: true });
 
-    // If we have GitHub template files, overwrite with them
     if (useGithubTemplate && templateFiles.size > 0) {
+      if (!templateFiles.has("package.json")) {
+        const templateDir = path.join(__dirname, "..", "template");
+        fs.copySync(templateDir, projectPath);
+      }
+
       for (const [filename, content] of templateFiles) {
         const filePath = path.join(projectPath, filename);
         fs.mkdirSync(path.dirname(filePath), { recursive: true });
         fs.writeFileSync(filePath, content);
       }
+    } else {
+      const templateDir = path.join(__dirname, "..", "template");
+      fs.copySync(templateDir, projectPath);
     }
 
     // Update package.json name
