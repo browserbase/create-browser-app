@@ -1,5 +1,3 @@
-import https from "https";
-import { URL } from "url";
 import AdmZip, { IZipEntry } from "adm-zip";
 
 interface TemplateInfo {
@@ -13,70 +11,44 @@ const MAX_ARCHIVE_BYTES = 20 * 1024 * 1024;
 
 let archivePromise: Promise<AdmZip> | undefined;
 
-function fetchBuffer(urlString: string, redirectsLeft = 3): Promise<Buffer> {
-  return new Promise((resolve, reject) => {
-    const url = new URL(urlString);
-
-    https
-      .get(
-        {
-          hostname: url.hostname,
-          path: url.pathname + url.search,
-          method: "GET",
-          headers: { "User-Agent": "create-browser-app" },
-        },
-        (res) => {
-          if (
-            res.statusCode &&
-            res.statusCode >= 300 &&
-            res.statusCode < 400 &&
-            res.headers.location &&
-            redirectsLeft > 0
-          ) {
-            res.resume();
-            resolve(
-              fetchBuffer(
-                new URL(res.headers.location, urlString).toString(),
-                redirectsLeft - 1
-              )
-            );
-            return;
-          }
-
-          if (res.statusCode !== 200) {
-            res.resume();
-            reject(
-              new Error(
-                `Template archive request failed with HTTP ${res.statusCode ?? "unknown"}`
-              )
-            );
-            return;
-          }
-
-          const contentLength = Number(res.headers["content-length"] ?? 0);
-          if (contentLength > MAX_ARCHIVE_BYTES) {
-            res.resume();
-            reject(new Error("Template archive is unexpectedly large"));
-            return;
-          }
-
-          const chunks: Buffer[] = [];
-          let receivedBytes = 0;
-
-          res.on("data", (chunk: Buffer) => {
-            receivedBytes += chunk.length;
-            if (receivedBytes > MAX_ARCHIVE_BYTES) {
-              res.destroy(new Error("Template archive is unexpectedly large"));
-              return;
-            }
-            chunks.push(chunk);
-          });
-          res.on("end", () => resolve(Buffer.concat(chunks)));
-          res.on("error", reject);
-        }
-      )
-      .on("error", reject);
+async function fetchBuffer(url: string): Promise<Buffer> {
+  const response = await fetch(url, {
+    headers: { "User-Agent": "create-browser-app" },
   });
+
+  if (!response.ok) {
+    throw new Error(
+      `Template archive request failed with HTTP ${response.status}`
+    );
+  }
+
+  const contentLength = Number(response.headers.get("content-length") ?? 0);
+  if (contentLength > MAX_ARCHIVE_BYTES) {
+    await response.body?.cancel();
+    throw new Error("Template archive is unexpectedly large");
+  }
+
+  if (!response.body) {
+    throw new Error("Template archive response has no body");
+  }
+
+  const reader = response.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let receivedBytes = 0;
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) {
+      return Buffer.concat(chunks, receivedBytes);
+    }
+
+    receivedBytes += value.byteLength;
+    if (receivedBytes > MAX_ARCHIVE_BYTES) {
+      await reader.cancel();
+      throw new Error("Template archive is unexpectedly large");
+    }
+    chunks.push(value);
+  }
 }
 
 function fetchTemplateArchive(): Promise<AdmZip> {
