@@ -1,189 +1,172 @@
-import https from "https";
-import { URL } from "url";
+import AdmZip, { IZipEntry } from "adm-zip";
 
 interface TemplateInfo {
   name: string;
   path: string;
 }
 
-interface GitHubAPIResponse {
-  name: string;
-  type: string;
-  path: string;
-  download_url?: string;
+const TEMPLATE_ARCHIVE_URL =
+  "https://codeload.github.com/browserbase/templates/zip/refs/heads/dev";
+const MAX_ARCHIVE_BYTES = 20 * 1024 * 1024;
+
+let archivePromise: Promise<AdmZip> | undefined;
+
+async function fetchBuffer(url: string): Promise<Buffer> {
+  const response = await fetch(url, {
+    headers: { "User-Agent": "create-browser-app" },
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      `Template archive request failed with HTTP ${response.status}`
+    );
+  }
+
+  const contentLength = Number(response.headers.get("content-length") ?? 0);
+  if (contentLength > MAX_ARCHIVE_BYTES) {
+    await response.body?.cancel();
+    throw new Error("Template archive is unexpectedly large");
+  }
+
+  if (!response.body) {
+    throw new Error("Template archive response has no body");
+  }
+
+  const reader = response.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let receivedBytes = 0;
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) {
+      return Buffer.concat(chunks, receivedBytes);
+    }
+
+    receivedBytes += value.byteLength;
+    if (receivedBytes > MAX_ARCHIVE_BYTES) {
+      await reader.cancel();
+      throw new Error("Template archive is unexpectedly large");
+    }
+    chunks.push(value);
+  }
 }
 
-/**
- * Shared helper to fetch contents from a GitHub API path.
- * Returns parsed array of items (files and directories).
- */
-function fetchGitHubContents(apiPath: string): Promise<GitHubAPIResponse[]> {
-  return new Promise((resolve) => {
-    const options = {
-      hostname: "api.github.com",
-      path: apiPath,
-      method: "GET",
-      headers: {
-        "User-Agent": "create-browser-app",
-        Accept: "application/vnd.github+json",
-      },
-    };
+function fetchTemplateArchive(): Promise<AdmZip> {
+  archivePromise ??= fetchBuffer(TEMPLATE_ARCHIVE_URL).then(
+    (archive) => new AdmZip(archive)
+  );
+  return archivePromise;
+}
 
-    https
-      .get(options, (res) => {
-        let data = "";
+function repositoryPath(entry: IZipEntry): string {
+  const rootSeparator = entry.entryName.indexOf("/");
+  return rootSeparator === -1
+    ? ""
+    : entry.entryName.slice(rootSeparator + 1);
+}
 
-        if (res.statusCode !== 200) {
-          resolve([]);
-          return;
-        }
+function templateDirectories(entries: IZipEntry[]): string[] {
+  const directories = entries
+    .map(repositoryPath)
+    .filter(
+      (entryPath) =>
+        entryPath.startsWith("typescript/") &&
+        (entryPath.endsWith("/index.ts") ||
+          entryPath.endsWith("/package.json"))
+    )
+    .map((entryPath) => entryPath.slice(0, entryPath.lastIndexOf("/")));
 
-        res.on("data", (chunk) => {
-          data += chunk;
-        });
+  return [...new Set(directories)];
+}
 
-        res.on("end", () => {
-          try {
-            const items: GitHubAPIResponse[] = JSON.parse(data);
-            resolve(items);
-          } catch (error) {
-            resolve([]);
-          }
-        });
-      })
-      .on("error", () => {
-        resolve([]);
-      });
-  });
+export function resolveTemplatePath(
+  templateDirs: string[],
+  name: string
+): string | undefined {
+  if (!/^[a-z0-9][a-z0-9-]*$/.test(name)) {
+    return undefined;
+  }
+
+  const directPath = `typescript/${name}`;
+  if (templateDirs.includes(directPath)) {
+    return directPath;
+  }
+
+  const nestedMatches = templateDirs.filter(
+    (templateDir) => templateDir.split("/").at(-1) === name
+  );
+
+  if (nestedMatches.length > 1) {
+    throw new Error(
+      `Template '${name}' is ambiguous: ${nestedMatches.join(", ")}`
+    );
+  }
+
+  return nestedMatches[0];
 }
 
 export async function fetchTypeScriptTemplates(): Promise<TemplateInfo[]> {
-  const items = await fetchGitHubContents(
-    "/repos/browserbase/templates/contents/typescript"
-  );
-  return items
-    .filter((item) => item.type === "dir")
-    .map((item) => buildTemplateInfo(item.name));
-}
+  const archive = await fetchTemplateArchive();
+  const templateDirs = templateDirectories(archive.getEntries());
 
-/**
- * Builds a TemplateInfo object from a template name (directory slug)
- */
-function buildTemplateInfo(name: string): TemplateInfo {
-  return {
-    name,
-    path: `typescript/${name}`,
-  };
+  return templateDirs.map((templatePath) => ({
+    name: templatePath.split("/").at(-1)!,
+    path: templatePath,
+  }));
 }
 
 export async function getTemplateByName(
   name: string
 ): Promise<TemplateInfo | undefined> {
-  const templates = await fetchTypeScriptTemplates();
-  return templates.find((t) => t.name === name);
-}
-
-function fetchFromUrl(urlString: string): Promise<Buffer | null> {
-  return new Promise((resolve) => {
-    const url = new URL(urlString);
-
-    const options = {
-      hostname: url.hostname,
-      path: url.pathname + url.search,
-      method: "GET",
-      headers: {
-        "User-Agent": "create-browser-app",
-      },
-    };
-
-    https
-      .get(options, (res) => {
-        const chunks: Buffer[] = [];
-
-        if (res.statusCode !== 200) {
-          resolve(null);
-          return;
-        }
-
-        res.on("data", (chunk: Buffer) => {
-          chunks.push(chunk);
-        });
-
-        res.on("end", () => {
-          resolve(Buffer.concat(chunks));
-        });
-      })
-      .on("error", () => {
-        resolve(null);
-      });
-  });
-}
-
-/**
- * Recursively fetches all files from a GitHub directory, descending into subdirectories.
- */
-async function fetchFilesRecursive(
-  apiPath: string
-): Promise<GitHubAPIResponse[]> {
-  const items = await fetchGitHubContents(apiPath);
-  const files: GitHubAPIResponse[] = [];
-
-  const fileItems = items.filter((item) => item.type === "file");
-  const dirItems = items.filter((item) => item.type === "dir");
-
-  const subResults = await Promise.all(
-    dirItems.map((item) =>
-      fetchFilesRecursive(
-        `/repos/browserbase/templates/contents/${item.path}`
-      )
-    )
+  const archive = await fetchTemplateArchive();
+  const templatePath = resolveTemplatePath(
+    templateDirectories(archive.getEntries()),
+    name
   );
 
-  return [...fileItems, ...subResults.flat()];
+  return templatePath ? { name, path: templatePath } : undefined;
 }
 
-/**
- * Fetches the list of all files in a template directory from GitHub (recursively)
- */
-export function fetchTemplateFiles(
-  templateName: string
-): Promise<GitHubAPIResponse[]> {
-  return fetchFilesRecursive(
-    `/repos/browserbase/templates/contents/typescript/${templateName}`
-  );
-}
-
-/**
- * Fetches all file contents from a template directory (recursively)
- * Returns a Map of relative path -> content buffer
- */
 export async function fetchAllTemplateContents(
   templateName: string
 ): Promise<Map<string, Buffer>> {
-  const files = await fetchTemplateFiles(templateName);
+  const archive = await fetchTemplateArchive();
+  const templatePath = resolveTemplatePath(
+    templateDirectories(archive.getEntries()),
+    templateName
+  );
+
+  if (!templatePath) {
+    return new Map();
+  }
+
+  const prefix = `${templatePath}/`;
   const contents = new Map<string, Buffer>();
-  const prefix = `typescript/${templateName}/`;
 
-  // Fetch all files in parallel
-  const fetchPromises = files.map(async (file) => {
-    if (file.download_url) {
-      const content = await fetchFromUrl(file.download_url);
-      if (content !== null) {
-        const relativePath = file.path.startsWith(prefix)
-          ? file.path.slice(prefix.length)
-          : file.name;
-        contents.set(relativePath, content);
-      }
+  for (const entry of archive.getEntries()) {
+    const entryPath = repositoryPath(entry);
+    if (entry.isDirectory || !entryPath.startsWith(prefix)) {
+      continue;
     }
-  });
 
-  await Promise.all(fetchPromises);
+    const relativePath = entryPath.slice(prefix.length);
+    if (
+      !relativePath ||
+      relativePath.startsWith("/") ||
+      relativePath.split("/").includes("..")
+    ) {
+      throw new Error(`Unsafe template archive path: ${entryPath}`);
+    }
+    contents.set(relativePath, entry.getData());
+  }
+
   return contents;
 }
 
 export async function getAvailableTemplates(): Promise<string[]> {
-  const defaultTemplates = ["basic"];
   const templates = await fetchTypeScriptTemplates();
-  const githubTemplates = templates.map((t) => t.name);
-  return [...defaultTemplates, ...githubTemplates];
+  return [
+    "basic",
+    ...new Set(templates.map((template) => template.name).sort()),
+  ];
 }
