@@ -1,5 +1,11 @@
 # create-browser-app
 
+## 3.0.1
+
+### Patch Changes
+
+- d35dd22: Resolve nested template names, avoid GitHub API rate limits, and fail instead of silently generating the basic starter when a requested template cannot be found.
+
 ## 3.0.0
 
 ### Major Changes
